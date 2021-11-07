@@ -147,6 +147,9 @@ export class Fur_Graphics extends Scene {
         });
 
         this.key_triggered_button("La", ["n"], () => {
+            if (!this.la) {
+                this.start_t = this.t;
+            }
             this.la = !this.la;
         });
 
@@ -221,11 +224,11 @@ export class Fur_Graphics extends Scene {
     }
 
     sin_modifier(amplitude, period, t, phase_shift=0, vertical_shift=0) {
-        return amplitude*Math.sin(Math.PI*t/period + phase_shift) + vertical_shift;
+        return amplitude*Math.sin(2*Math.PI*t/period + phase_shift) + vertical_shift;
     }
 
     cos_modifier(amplitude, period, t, phase_shift=0, vertical_shift=0) {
-        return amplitude*Math.cos(Math.PI*t/period + phase_shift) + vertical_shift;
+        return amplitude*Math.cos(2*Math.PI*t/period + phase_shift) + vertical_shift;
     }
 
     render_scene(context, program_state, shadow_pass, draw_light_source=false, draw_shadow=false) {
@@ -235,7 +238,7 @@ export class Fur_Graphics extends Scene {
 
         let light_position = this.light_position;
         let light_color = this.light_color;
-        const t = program_state.animation_time/1000;
+        const t = this.t = program_state.animation_time/1000;
 
         program_state.draw_shadow = draw_shadow;
 
@@ -304,10 +307,22 @@ export class Fur_Graphics extends Scene {
             this.re_color = shape_2_color;
         }
         
+        let model_trans_shape_6 = Mat4.translation(6, 5, -7).times(Mat4.rotation(5,0,5,0));
+        const period = 1;
+        if (this.la) {
+            let elapsed_t = t - this.start_t;
+            let shift = this.sin_modifier(5, period, elapsed_t, -Math.PI/2, 5)/2;
+            if (elapsed_t >= period) {
+                this.la = false;
+            } else {
+                model_trans_shape_6 = model_trans_shape_6.times(Mat4.translation(0, shift, 0));
+            }
+        }
+
         let model_trans_shape_3 = Mat4.translation(-3, 6, -7);
         let model_trans_shape_4 = Mat4.translation(0, 5, -7);
         let model_trans_shape_5 = Mat4.translation(3, 6, -7);
-        let model_trans_shape_6 = Mat4.translation(6, 5, -7).times(Mat4.rotation(5,0,5,0));
+        
         let model_trans_shape_7 = Mat4.translation(7, 7, -7);
 
         this.shapes.sphere.draw(context, program_state, this.do_transform, 
