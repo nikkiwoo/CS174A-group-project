@@ -41,6 +41,12 @@ export class Fur_Graphics extends Scene {
         this.la = false;
         this.ti = false;
 
+        // object states
+        this.do_transform;
+        this.do_color;
+        this.re_transform;
+        this.re_color;
+
         // Load the model file:
         this.shapes = {
             "teapot": new Shape_From_File("assets/teapot.obj"),
@@ -214,6 +220,14 @@ export class Fur_Graphics extends Scene {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    sin_modifier(amplitude, period, t, phase_shift=0, vertical_shift=0) {
+        return amplitude*Math.sin(Math.PI*t/period + phase_shift) + vertical_shift;
+    }
+
+    cos_modifier(amplitude, period, t, phase_shift=0, vertical_shift=0) {
+        return amplitude*Math.cos(Math.PI*t/period + phase_shift) + vertical_shift;
+    }
+
     render_scene(context, program_state, shadow_pass, draw_light_source=false, draw_shadow=false) {
         // shadow_pass: true if this is the second pass that draw the shadow.
         // draw_light_source: true if we want to draw the light source.
@@ -221,7 +235,7 @@ export class Fur_Graphics extends Scene {
 
         let light_position = this.light_position;
         let light_color = this.light_color;
-        const t = program_state.animation_time;
+        const t = program_state.animation_time/1000;
 
         program_state.draw_shadow = draw_shadow;
 
@@ -238,14 +252,11 @@ export class Fur_Graphics extends Scene {
         //     this.shapes.teapot.draw(context, program_state, model_transform, shadow_pass? this.stars : this.pure);
         // }
 
-        
-
-
         // Drawing Table
-        let model_trans_floor = Mat4.scale(10, 0.1, 5);
-        let model_trans_wall_1 = Mat4.translation(-9.5, - 2 - 0.1, 0).times(Mat4.scale(0.33, 2, 5));
-        let model_trans_wall_2 = Mat4.translation(+9.5, - 2 - 0.1, 0).times(Mat4.scale(0.33, 2, 5));
-        let model_trans_wall_3 = Mat4.translation(0,  2 - 0.1, -5).times(Mat4.scale(8, 2, 0.33));
+        let model_trans_floor = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
+        let model_trans_wall_1 = Mat4.translation(-9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+        let model_trans_wall_2 = Mat4.translation(+9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+        let model_trans_wall_3 = Mat4.translation(0,  2 - 0.1, -3.5).times(Mat4.scale(8, 2, 0.33));
         
         this.shapes.cube.draw(context, program_state, model_trans_floor, shadow_pass? this.floor : this.pure);
         this.shapes.cube.draw(context, program_state, model_trans_wall_1, shadow_pass? this.floor : this.pure);
@@ -255,13 +266,13 @@ export class Fur_Graphics extends Scene {
         // Drawing Keys
         const unpressed_height = 0.6;
         const pressed_height = 0.3;
-        let model_trans_key_1 = this.do ? Mat4.translation(-9, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(-9, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
-        let model_trans_key_2 = this.re ? Mat4.translation(-6, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(-6, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
-        let model_trans_key_3 = this.mi ? Mat4.translation(-3, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(-3, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
-        let model_trans_key_4 = this.fa ? Mat4.translation(0, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(0, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
-        let model_trans_key_5 = this.so ? Mat4.translation(3, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(3, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
-        let model_trans_key_6 = this.la ? Mat4.translation(6, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(6, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
-        let model_trans_key_7 = this.ti ? Mat4.translation(9, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(9, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+        let model_trans_key_1 = Mat4.translation(-9, this.do? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.do? pressed_height : unpressed_height, 3));
+        let model_trans_key_2 = Mat4.translation(-6, this.re? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.re? pressed_height : unpressed_height, 3));
+        let model_trans_key_3 = Mat4.translation(-3, this.mi? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.mi? pressed_height : unpressed_height, 3));
+        let model_trans_key_4 = Mat4.translation(0, this.fa? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.fa? pressed_height : unpressed_height, 3));
+        let model_trans_key_5 = Mat4.translation(3, this.so? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.so? pressed_height : unpressed_height, 3));
+        let model_trans_key_6 = Mat4.translation(6, this.la? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.la? pressed_height : unpressed_height, 3));
+        let model_trans_key_7 = Mat4.translation(9, this.ti? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.ti? pressed_height : unpressed_height, 3));
 
         this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.keys : this.pure);
         this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.keys : this.pure);
@@ -272,16 +283,37 @@ export class Fur_Graphics extends Scene {
         this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.keys : this.pure);
 
         // Drawing Shapes
-        let model_trans_shape_1 = Mat4.translation(-9, 5, -7);
-        let model_trans_shape_2 = Mat4.translation(-6, 7, -7);
+        let model_trans_shape_1 = Mat4.translation(this.sin_modifier(-9, 2, t), this.cos_modifier(5, 2, t), -7);
+        let shape_1_color = color(this.sin_modifier(0.1, 5, t, 0.5, 0.5), this.cos_modifier(0.2, 2, t, 1, 0.5), 0.4, 1);
+        if (this.do) {
+            model_trans_shape_1 = this.do_transform;
+            shape_1_color = this.do_color;
+        } else {
+            this.do_transform = model_trans_shape_1;
+            this.do_color = shape_1_color;
+        }
+
+        let model_trans_shape_2 = Mat4.translation(this.cos_modifier(-5, 2, t), this.cos_modifier(2, 2, t, 0, 6), -7)
+                                                    .times(Mat4.rotation(this.sin_modifier(-9, 2, t), 1, 1, 0));
+        let shape_2_color = color(0.7, this.cos_modifier(0.2, 2, t, 1, 0.5), this.cos_modifier(0.4, 3, t, 1, 0.5), 1);
+        if (this.re) {
+            model_trans_shape_1 = this.re_transform;
+            shape_1_color = this.re_color;
+        } else {
+            this.re_transform = model_trans_shape_2;
+            this.re_color = shape_2_color;
+        }
+        
         let model_trans_shape_3 = Mat4.translation(-3, 6, -7);
         let model_trans_shape_4 = Mat4.translation(0, 5, -7);
         let model_trans_shape_5 = Mat4.translation(3, 6, -7);
         let model_trans_shape_6 = Mat4.translation(6, 5, -7).times(Mat4.rotation(5,0,5,0));
         let model_trans_shape_7 = Mat4.translation(7, 7, -7);
 
-        this.shapes.sphere.draw(context, program_state, model_trans_shape_1, this.keys);
-        this.shapes.torus.draw(context, program_state, model_trans_shape_2, this.keys);
+        this.shapes.sphere.draw(context, program_state, this.do_transform, 
+                                this.keys.override({color: this.do_color}));
+        this.shapes.torus.draw(context, program_state, this.re_transform, 
+                                this.keys.override({color: this.re_color}));
         this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.keys);
         this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.keys);
         this.shapes.bottle.draw(context, program_state, model_trans_shape_5, this.keys); // not working
