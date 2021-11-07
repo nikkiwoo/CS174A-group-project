@@ -47,6 +47,13 @@ export class Fur_Graphics extends Scene {
             "sphere": new Subdivision_Sphere(6),
             "cube": new Cube(),
             "square_2d": new Square(),
+            "torus": new defs.Torus(15, 15),
+            "circle": new defs.Regular_2D_Polygon(1, 15),
+            "planet": new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
+            "among_us": new Shape_From_File("assets/among_us.obj"),
+            "bottle": new Shape_From_File("assets/bottle.obj"),
+            "arrow": new Shape_From_File("assets/arrow.obj"),
+            "boat": new Shape_From_File("assets/boat.obj"),
         };
 
         // For the teapot
@@ -265,7 +272,21 @@ export class Fur_Graphics extends Scene {
         this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.keys : this.pure);
 
         // Drawing Shapes
-        // 7 different shapes, each corresponding to a key
+        let model_trans_shape_1 = Mat4.translation(-9, 5, -7);
+        let model_trans_shape_2 = Mat4.translation(-6, 7, -7);
+        let model_trans_shape_3 = Mat4.translation(-3, 6, -7);
+        let model_trans_shape_4 = Mat4.translation(0, 5, -7);
+        let model_trans_shape_5 = Mat4.translation(3, 6, -7);
+        let model_trans_shape_6 = Mat4.translation(6, 5, -7).times(Mat4.rotation(5,0,5,0));
+        let model_trans_shape_7 = Mat4.translation(7, 7, -7);
+
+        this.shapes.sphere.draw(context, program_state, model_trans_shape_1, this.keys);
+        this.shapes.torus.draw(context, program_state, model_trans_shape_2, this.keys);
+        this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.keys);
+        this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.keys);
+        this.shapes.bottle.draw(context, program_state, model_trans_shape_5, this.keys); // not working
+        this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.keys);
+        this.shapes.boat.draw(context, program_state, model_trans_shape_7, this.keys); // not working
     }
 
     display(context, program_state) {
