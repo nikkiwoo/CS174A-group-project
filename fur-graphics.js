@@ -1,6 +1,6 @@
 import {defs, tiny} from './examples/common.js';
 // Pull these names into this module's scope for convenience:
-const {vec3, vec4, vec, color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene} = tiny;
+const {vec3, vec4, vec, color, hex_color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene} = tiny;
 const {Cube, Axis_Arrows, Textured_Phong, Phong_Shader, Basic_Shader, Subdivision_Sphere} = defs
 
 import {Shape_From_File} from './examples/obj-file-demo.js'
@@ -59,10 +59,20 @@ export class Fur_Graphics extends Scene {
         });
         // For the floor or other plain objects
         this.floor = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: color(1, 1, 1, 1), ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            // color: color(1, 1, 1, 1), 
+            color: hex_color("#D2691E"),
+            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
             color_texture: null,
             light_depth_texture: null
         })
+
+        this.keys = new Material(new Shadow_Textured_Phong_Shader(1), {
+          // color: color(1, 1, 1, 1), 
+          color: hex_color("#F5DEB3"),
+          ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+          color_texture: null,
+          light_depth_texture: null
+      })
 
         // this.key = new Material (new Color_Phong_Shader(), {
         //   color: color(0)
@@ -223,33 +233,36 @@ export class Fur_Graphics extends Scene {
 
         
 
-        let model_trans_key_1 = this.do ? Mat4.translation(-9, 0.5, 2).times(Mat4.scale(1, 0.5, 3)) : Mat4.translation(-9, 1, 2).times(Mat4.scale(1, 1, 3));
-        let model_trans_key_2 = this.re ? Mat4.translation(-6, 0.5, 2).times(Mat4.scale(1, 0.5, 3)) : Mat4.translation(-6, 1, 2).times(Mat4.scale(1, 1, 3));
-        let model_trans_key_3 = this.mi ? Mat4.translation(-3, 0.5, 2).times(Mat4.scale(1, 0.5, 3)) : Mat4.translation(-3, 1, 2).times(Mat4.scale(1, 1, 3));
-        let model_trans_key_4 = this.fa ? Mat4.translation(0, 0.5, 2).times(Mat4.scale(1, 0.5, 3)) : Mat4.translation(0, 1, 2).times(Mat4.scale(1, 1, 3));
-        let model_trans_key_5 = this.so ? Mat4.translation(3, 0.5, 2).times(Mat4.scale(1, 0.5, 3)) : Mat4.translation(3, 1, 2).times(Mat4.scale(1, 1, 3));
-        let model_trans_key_6 = this.la ? Mat4.translation(6, 0.5, 2).times(Mat4.scale(1, 0.5, 3)) : Mat4.translation(6, 1, 2).times(Mat4.scale(1, 1, 3));
-        let model_trans_key_7 = this.ti ? Mat4.translation(9, 0.5, 2).times(Mat4.scale(1, 0.5, 3)) : Mat4.translation(9, 1, 2).times(Mat4.scale(1, 1, 3));
 
+        // Drawing Table
         let model_trans_floor = Mat4.scale(10, 0.1, 5);
         let model_trans_wall_1 = Mat4.translation(-9.5, - 2 - 0.1, 0).times(Mat4.scale(0.33, 2, 5));
         let model_trans_wall_2 = Mat4.translation(+9.5, - 2 - 0.1, 0).times(Mat4.scale(0.33, 2, 5));
         let model_trans_wall_3 = Mat4.translation(0,  2 - 0.1, -5).times(Mat4.scale(8, 2, 0.33));
         
-        // Drawing Table
         this.shapes.cube.draw(context, program_state, model_trans_floor, shadow_pass? this.floor : this.pure);
         this.shapes.cube.draw(context, program_state, model_trans_wall_1, shadow_pass? this.floor : this.pure);
         this.shapes.cube.draw(context, program_state, model_trans_wall_2, shadow_pass? this.floor : this.pure);
         this.shapes.cube.draw(context, program_state, model_trans_wall_3, shadow_pass? this.floor : this.pure);
         
         // Drawing Keys
-        this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.floor : this.pure);
+        const unpressed_height = 0.6;
+        const pressed_height = 0.3;
+        let model_trans_key_1 = this.do ? Mat4.translation(-9, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(-9, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+        let model_trans_key_2 = this.re ? Mat4.translation(-6, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(-6, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+        let model_trans_key_3 = this.mi ? Mat4.translation(-3, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(-3, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+        let model_trans_key_4 = this.fa ? Mat4.translation(0, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(0, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+        let model_trans_key_5 = this.so ? Mat4.translation(3, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(3, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+        let model_trans_key_6 = this.la ? Mat4.translation(6, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(6, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+        let model_trans_key_7 = this.ti ? Mat4.translation(9, pressed_height, 2).times(Mat4.scale(1, pressed_height, 3)) : Mat4.translation(9, unpressed_height, 2).times(Mat4.scale(1, unpressed_height, 3));
+
+        this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.keys : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.keys : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.keys : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.keys : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.keys : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.keys : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.keys : this.pure);
 
         // Drawing Shapes
         // 7 different shapes, each corresponding to a key
