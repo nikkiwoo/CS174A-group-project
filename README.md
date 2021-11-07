@@ -1,8 +1,8 @@
-# Shadow Demo
+# Für Graphics
 
-This is a Tiny-Graphics demo about advanced shadow implementation that with 2 passes.
+Our project is to have an animated piano-like interface where users can press keys on their keyboards to make visual changes pop up depending on which keys they press.
 
-![main](./docs/main.png)
+![main](./docs/piano.png)
 
 ### Code Location
 
