@@ -53,6 +53,7 @@ export class Fur_Graphics extends Scene {
 
         // animation states
         this.animate_la = false;
+        this.animate_ti = false;
 
         // Load the model file:
         this.shapes = {
@@ -189,7 +190,14 @@ export class Fur_Graphics extends Scene {
         });
 
         this.key_triggered_button("Ti", ["m"], () => {
-            this.ti = !this.ti;
+            if (!this.ti) {
+                this.ti_start_t = this.t;
+                this.ti = true;
+            }
+            if (!this.animate_ti) {
+                this.animate_ti_start_t = this.t;
+                this.animate_ti = true;
+            }
         });
     }
 
@@ -307,9 +315,11 @@ export class Fur_Graphics extends Scene {
 
         if (this.la) {
             let la_elapsed_t = t - this.la_start_t;
-            if (la_elapsed_t >= 0.2) {
-                this.la = false;
-            }
+            if (la_elapsed_t >= 0.2) this.la = false;
+        }
+        if (this.ti) {
+            let ti_elapsed_t = t - this.ti_start_t;
+            if (ti_elapsed_t >= 0.2) this.ti = false;
         }
 
         let model_trans_key_1 = Mat4.translation(-9, this.do? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.do? pressed_height : unpressed_height, 3));
@@ -361,12 +371,22 @@ export class Fur_Graphics extends Scene {
                 model_trans_shape_6 = model_trans_shape_6.times(Mat4.translation(0, shift, 0));
             }
         }
+        let model_trans_shape_7 = Mat4.translation(9, 7, -7);
+        if (this.animate_ti) {
+            const animate_ti_period = 1;
+            let animate_ti_elapsed_t = t - this.animate_ti_start_t;
+            let rotate_ti = this.sin_modifier(5, animate_ti_period, animate_ti_elapsed_t, -Math.PI/2, 5)/2;
+            if (animate_ti_elapsed_t >= animate_ti_period) {
+                this.animate_ti = false;
+            } else {
+                model_trans_shape_7 = model_trans_shape_7.times(Mat4.rotation(rotate_ti, 0, rotate_ti, 0));
+            }
+        }
 
         let model_trans_shape_3 = Mat4.translation(-3, 6, -7);
         let model_trans_shape_4 = Mat4.translation(0, 5, -7);
         let model_trans_shape_5 = Mat4.translation(3, 6, -7);
         
-        let model_trans_shape_7 = Mat4.translation(9, 7, -7);
 
         this.shapes.shark.draw(context, program_state, this.do_transform, 
                                 this.keys.override({color: this.do_color}));
