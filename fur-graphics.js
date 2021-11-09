@@ -42,10 +42,17 @@ export class Fur_Graphics extends Scene {
         this.ti = false;
 
         // object states
-        this.do_transform;
-        this.do_color;
-        this.re_transform;
-        this.re_color;
+        this.do_transform = Mat4.translation(-9, 5, -7);
+        this.do_color = color(1, 1, 1, 1);
+        this.do_test1 = 0;
+        this.do_test2 = 0;
+        this.do_test3 = 0;
+        this.do_test4 = 0;
+        this.re_transform = Mat4.translation(-6, 7, -7);
+        this.re_color = color(1, 1, 1, 1);
+
+        // animation states
+        this.animate_la = false;
 
         // Load the model file:
         this.shapes = {
@@ -57,9 +64,9 @@ export class Fur_Graphics extends Scene {
             "circle": new defs.Regular_2D_Polygon(1, 15),
             "planet": new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
             "among_us": new Shape_From_File("assets/among_us.obj"),
-            "bottle": new Shape_From_File("assets/bottle.obj"),
             "arrow": new Shape_From_File("assets/arrow.obj"),
-            "boat": new Shape_From_File("assets/boat.obj"),
+            "rubik_cube": new Shape_From_File("assets/rubik_cube.obj"),
+            "shark": new Shape_From_File("assets/shark.obj"),
         };
 
         // For the teapot
@@ -78,19 +85,43 @@ export class Fur_Graphics extends Scene {
             color_texture: null,
             light_depth_texture: null
         })
+        this.rubik_cube = new Material(new Shadow_Textured_Phong_Shader(1), {
+            color: hex_color("#FF4500"),
+            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            color_texture: null,
+            light_depth_texture: null
+        }) 
+        this.arrow = new Material(new Shadow_Textured_Phong_Shader(1), {
+            color: hex_color("#00FFFF"),
+            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            color_texture: null,
+            light_depth_texture: null
+        })
+        this.sphere = new Material(new Shadow_Textured_Phong_Shader(1), {
+            color: hex_color("#00FF7F"),
+            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            color_texture: null,
+            light_depth_texture: null
+        })
+        this.among_us = new Material(new Shadow_Textured_Phong_Shader(1), {
+            color: hex_color("#FF8C00"),
+            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            color_texture: null,
+            light_depth_texture: null
+        })
+        this.planet = new Material(new Shadow_Textured_Phong_Shader(1), {
+            color: hex_color("#8A2BE2"),
+            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            color_texture: null,
+            light_depth_texture: null
+        })
 
         this.keys = new Material(new Shadow_Textured_Phong_Shader(1), {
-          // color: color(1, 1, 1, 1), 
           color: hex_color("#F5DEB3"),
           ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
           color_texture: null,
           light_depth_texture: null
-      })
-
-        // this.key = new Material (new Color_Phong_Shader(), {
-        //   color: color(0)
-        // })
-        // For the first pass
+        })
         this.pure = new Material(new Color_Phong_Shader(), {
         })
         // For light source
@@ -148,9 +179,13 @@ export class Fur_Graphics extends Scene {
 
         this.key_triggered_button("La", ["n"], () => {
             if (!this.la) {
-                this.start_t = this.t;
+                this.la_start_t = this.t;
+                this.la = true;
             }
-            this.la = !this.la;
+            if (!this.animate_la) {
+                this.animate_la_start_t = this.t;
+                this.animate_la = true;
+            }
         });
 
         this.key_triggered_button("Ti", ["m"], () => {
@@ -269,6 +304,14 @@ export class Fur_Graphics extends Scene {
         // Drawing Keys
         const unpressed_height = 0.6;
         const pressed_height = 0.3;
+
+        if (this.la) {
+            let la_elapsed_t = t - this.la_start_t;
+            if (la_elapsed_t >= 0.2) {
+                this.la = false;
+            }
+        }
+
         let model_trans_key_1 = Mat4.translation(-9, this.do? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.do? pressed_height : unpressed_height, 3));
         let model_trans_key_2 = Mat4.translation(-6, this.re? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.re? pressed_height : unpressed_height, 3));
         let model_trans_key_3 = Mat4.translation(-3, this.mi? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.mi? pressed_height : unpressed_height, 3));
@@ -287,8 +330,8 @@ export class Fur_Graphics extends Scene {
 
         // Drawing Shapes
         let model_trans_shape_1 = Mat4.translation(this.sin_modifier(-9, 2, t), this.cos_modifier(5, 2, t), -7);
-        let shape_1_color = color(this.sin_modifier(0.1, 5, t, 0.5, 0.5), this.cos_modifier(0.2, 2, t, 1, 0.5), 0.4, 1);
-        if (this.do) {
+        let shape_1_color = color(this.sin_modifier(0.1, 5, t, 2.5, 0.5), this.cos_modifier(0.2, 2, t, 1, 0.5), 0.4, 1);
+        if (!this.do) {
             model_trans_shape_1 = this.do_transform;
             shape_1_color = this.do_color;
         } else {
@@ -299,7 +342,7 @@ export class Fur_Graphics extends Scene {
         let model_trans_shape_2 = Mat4.translation(this.cos_modifier(-5, 2, t), this.cos_modifier(2, 2, t, 0, 6), -7)
                                                     .times(Mat4.rotation(this.sin_modifier(-9, 2, t), 1, 1, 0));
         let shape_2_color = color(0.7, this.cos_modifier(0.2, 2, t, 1, 0.5), this.cos_modifier(0.4, 3, t, 1, 0.5), 1);
-        if (this.re) {
+        if (!this.re) {
             model_trans_shape_1 = this.re_transform;
             shape_1_color = this.re_color;
         } else {
@@ -308,12 +351,12 @@ export class Fur_Graphics extends Scene {
         }
         
         let model_trans_shape_6 = Mat4.translation(6, 5, -7).times(Mat4.rotation(5,0,5,0));
-        const period = 1;
-        if (this.la) {
-            let elapsed_t = t - this.start_t;
-            let shift = this.sin_modifier(5, period, elapsed_t, -Math.PI/2, 5)/2;
-            if (elapsed_t >= period) {
-                this.la = false;
+        const animate_la_period = 1;
+        if (this.animate_la) {
+            let animate_la_elapsed_t = t - this.animate_la_start_t;
+            let shift = this.sin_modifier(5, animate_la_period, animate_la_elapsed_t, -Math.PI/2, 5)/2;
+            if (animate_la_elapsed_t >= animate_la_period) {
+                this.animate_la = false;
             } else {
                 model_trans_shape_6 = model_trans_shape_6.times(Mat4.translation(0, shift, 0));
             }
@@ -323,17 +366,17 @@ export class Fur_Graphics extends Scene {
         let model_trans_shape_4 = Mat4.translation(0, 5, -7);
         let model_trans_shape_5 = Mat4.translation(3, 6, -7);
         
-        let model_trans_shape_7 = Mat4.translation(7, 7, -7);
+        let model_trans_shape_7 = Mat4.translation(9, 7, -7);
 
-        this.shapes.sphere.draw(context, program_state, this.do_transform, 
+        this.shapes.shark.draw(context, program_state, this.do_transform, 
                                 this.keys.override({color: this.do_color}));
         this.shapes.torus.draw(context, program_state, this.re_transform, 
                                 this.keys.override({color: this.re_color}));
-        this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.keys);
-        this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.keys);
-        this.shapes.bottle.draw(context, program_state, model_trans_shape_5, this.keys); // not working
-        this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.keys);
-        this.shapes.boat.draw(context, program_state, model_trans_shape_7, this.keys); // not working
+        this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.planet);
+        this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.among_us);
+        this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.sphere); 
+        this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.arrow);
+        this.shapes.rubik_cube.draw(context, program_state, model_trans_shape_7, this.rubik_cube); 
     }
 
     display(context, program_state) {
