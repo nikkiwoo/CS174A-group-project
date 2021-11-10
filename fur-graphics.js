@@ -44,12 +44,10 @@ export class Fur_Graphics extends Scene {
         // object states
         this.do_transform = Mat4.translation(-9, 5, -7);
         this.do_color = color(1, 1, 1, 1);
-        this.do_test1 = 0;
-        this.do_test2 = 0;
-        this.do_test3 = 0;
-        this.do_test4 = 0;
+        this.do_t = 0;
         this.re_transform = Mat4.translation(-6, 7, -7);
         this.re_color = color(1, 1, 1, 1);
+        this.re_t = 0;
 
         // animation states
         this.animate_fa = false;
@@ -290,6 +288,7 @@ export class Fur_Graphics extends Scene {
         let light_position = this.light_position;
         let light_color = this.light_color;
         const t = this.t = program_state.animation_time/1000;
+        const dt = this.dt = program_state.animation_delta_time / 1000;
 
         program_state.draw_shadow = draw_shadow;
 
@@ -351,8 +350,13 @@ export class Fur_Graphics extends Scene {
         this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.keys : this.pure);
 
         // Drawing Shapes
-        let model_trans_shape_1 = Mat4.translation(this.sin_modifier(-9, 2, t), this.cos_modifier(5, 2, t), -7);
-        let shape_1_color = color(this.sin_modifier(0.1, 5, t, 2.5, 0.5), this.cos_modifier(0.2, 2, t, 1, 0.5), 0.4, 1);
+        if (this.do) {
+            this.do_t = this.do_t + dt;
+        }
+        let model_trans_shape_1 = Mat4.translation(-9, 5, -7)
+                                    .times(Mat4.rotation(this.sin_modifier(0.5, 2, this.do_t), 1, 0, 0));
+        let shape_1_color = color(this.sin_modifier(0.3, 5, this.do_t, 2.5, 0.5), 
+                                    this.cos_modifier(0.4, 2, this.do_t, 1, 0.5), 0.7, 1);
         if (!this.do) {
             model_trans_shape_1 = this.do_transform;
             shape_1_color = this.do_color;
@@ -361,9 +365,12 @@ export class Fur_Graphics extends Scene {
             this.do_color = shape_1_color;
         }
 
-        let model_trans_shape_2 = Mat4.translation(this.cos_modifier(-5, 2, t), this.cos_modifier(2, 2, t, 0, 6), -7)
-                                                    .times(Mat4.rotation(this.sin_modifier(-9, 2, t), 1, 1, 0));
-        let shape_2_color = color(0.7, this.cos_modifier(0.2, 2, t, 1, 0.5), this.cos_modifier(0.4, 3, t, 1, 0.5), 1);
+        if (this.re) {
+            this.re_t = this.re_t + dt;
+        }
+        let model_trans_shape_2 = Mat4.translation(-6, this.cos_modifier(2, 2, this.re_t, 0, 6), -7)
+                                                    .times(Mat4.rotation(this.sin_modifier(-3, 2, this.re_t), 1, this.cos_modifier(2, 1, this.re_t), 0));
+        let shape_2_color = color(0.7, this.cos_modifier(0.2, 2, this.re_t, 1, 0.5), this.cos_modifier(0.4, 3, this.re_t, 1, 0.5), 1);
         if (!this.re) {
             model_trans_shape_1 = this.re_transform;
             shape_1_color = this.re_color;
