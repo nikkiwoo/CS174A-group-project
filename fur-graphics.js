@@ -52,6 +52,7 @@ export class Fur_Graphics extends Scene {
         this.re_color = color(1, 1, 1, 1);
 
         // animation states
+        this.animate_fa = false;
         this.animate_la = false;
         this.animate_ti = false;
 
@@ -171,7 +172,14 @@ export class Fur_Graphics extends Scene {
         });
 
         this.key_triggered_button("Fa", ["v"], () => {
-            this.fa = !this.fa;
+            if (!this.fa) {
+                this.fa_start_t = this.t;
+                this.fa = true;
+            }
+            if (!this.animate_fa) {
+                this.animate_fa_start_t = this.t;
+                this.animate_fa = true;
+            }
         });
 
         this.key_triggered_button("So", ["b"], () => {
@@ -313,6 +321,10 @@ export class Fur_Graphics extends Scene {
         const unpressed_height = 0.6;
         const pressed_height = 0.3;
 
+        if (this.fa) {
+            let fa_elapsed_t = t - this.fa_start_t;
+            if (fa_elapsed_t >= 0.2) this.fa = false;
+        }
         if (this.la) {
             let la_elapsed_t = t - this.la_start_t;
             if (la_elapsed_t >= 0.2) this.la = false;
@@ -359,7 +371,19 @@ export class Fur_Graphics extends Scene {
             this.re_transform = model_trans_shape_2;
             this.re_color = shape_2_color;
         }
-        
+
+        let model_trans_shape_4 = Mat4.translation(0, 5, -7);
+        if (this.animate_fa) {
+            const animate_fa_period = 1;
+            let animate_fa_elapsed_t = t - this.animate_fa_start_t;
+            let rotate_fa = 1-this.sin_modifier(1, animate_fa_period, animate_fa_elapsed_t, -Math.PI/2, 1)/2;
+            if (animate_fa_elapsed_t >= animate_fa_period) {
+                this.animate_fa = false;
+            } else {
+                model_trans_shape_4 = model_trans_shape_4.times(Mat4.scale(rotate_fa, rotate_fa, 0, 0));
+            }
+        }
+
         let model_trans_shape_6 = Mat4.translation(6, 5, -7).times(Mat4.rotation(5,0,5,0));
         const animate_la_period = 1;
         if (this.animate_la) {
@@ -371,6 +395,7 @@ export class Fur_Graphics extends Scene {
                 model_trans_shape_6 = model_trans_shape_6.times(Mat4.translation(0, shift, 0));
             }
         }
+
         let model_trans_shape_7 = Mat4.translation(9, 7, -7);
         if (this.animate_ti) {
             const animate_ti_period = 1;
@@ -384,7 +409,6 @@ export class Fur_Graphics extends Scene {
         }
 
         let model_trans_shape_3 = Mat4.translation(-3, 6, -7);
-        let model_trans_shape_4 = Mat4.translation(0, 5, -7);
         let model_trans_shape_5 = Mat4.translation(3, 6, -7);
         
 
