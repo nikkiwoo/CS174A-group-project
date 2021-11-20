@@ -1,31 +1,12 @@
 import {defs, tiny} from './examples/common.js';
 // Pull these names into this module's scope for convenience:
-const {vec3, vec4, vec, color, hex_color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene} = tiny;
+const {vec3, vec4, vec, Vector, color, hex_color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene} = tiny;
 const {Cube, Axis_Arrows, Textured_Phong, Phong_Shader, Basic_Shader, Subdivision_Sphere} = defs
 
 import {Shape_From_File} from './examples/obj-file-demo.js'
 import {Color_Phong_Shader, Shadow_Textured_Phong_Shader,
     Depth_Texture_Shader_2D, Buffered_Texture, LIGHT_DEPTH_TEX_SIZE} from './examples/shadow-demo-shaders.js'
 
-// 2D shape, to display the texture buffer
-const Square =
-    class Square extends tiny.Vertex_Buffer {
-        constructor() {
-            super("position", "normal", "texture_coord");
-            this.arrays.position = [
-                vec3(0, 0, 0), vec3(1, 0, 0), vec3(0, 1, 0),
-                vec3(1, 1, 0), vec3(1, 0, 0), vec3(0, 1, 0)
-            ];
-            this.arrays.normal = [
-                vec3(0, 0, 1), vec3(0, 0, 1), vec3(0, 0, 1),
-                vec3(0, 0, 1), vec3(0, 0, 1), vec3(0, 0, 1),
-            ];
-            this.arrays.texture_coord = [
-                vec(0, 0), vec(1, 0), vec(0, 1),
-                vec(1, 1), vec(1, 0), vec(0, 1)
-            ]
-        }
-    }
 
 // The scene
 export class Fur_Graphics extends Scene {
@@ -64,7 +45,7 @@ export class Fur_Graphics extends Scene {
             "teapot": new Shape_From_File("assets/teapot.obj"),
             "sphere": new Subdivision_Sphere(6),
             "cube": new Cube(),
-            "square_2d": new Square(),
+            "cube2": new Cube(),
             "torus": new defs.Torus(15, 15),
             "circle": new defs.Regular_2D_Polygon(1, 15),
             "planet": new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
@@ -74,93 +55,68 @@ export class Fur_Graphics extends Scene {
             "shark": new Shape_From_File("assets/shark.obj"),
         };
 
-        // For the teapot
-        this.stars = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: color(.5, .5, .5, 1),
-            ambient: .4, diffusivity: .5, specularity: .5,
-            color_texture: new Texture("assets/stars.png"),
-            light_depth_texture: null
-
-        });
-        // For the floor or other plain objects
-        this.floor = new Material(new Shadow_Textured_Phong_Shader(1), {
-            // color: color(1, 1, 1, 1), 
-            color: hex_color("#D2691E"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.rubik_cube = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#FF4500"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        }) 
-        this.arrow = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#00FFFF"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.sphere = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#00FF7F"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.among_us = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#FF8C00"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.planet = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#8A2BE2"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-
-        this.keys = new Material(new Shadow_Textured_Phong_Shader(1), {
-          color: hex_color("#F5DEB3"),
-          ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-          color_texture: null,
-          light_depth_texture: null
-        })
-        this.pure = new Material(new Color_Phong_Shader(), {
-        })
-        // For light source
-        this.light_src = new Material(new Phong_Shader(), {
-            color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specularity: 0
-        });
-        // For depth texture display
-        this.depth_tex =  new Material(new Depth_Texture_Shader_2D(), {
-            color: color(0, 0, .0, 1),
-            ambient: 1, diffusivity: 0, specularity: 0, texture: null
-        });
+        this.shapes.cube.arrays.texture_coord = Vector.cast(
+            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [2, 0], [0, 2], [2, 2], 
+            [0, 0], [2, 0], [0, 2], [2, 2], [0, 0], [2, 0], [0, 2], [2, 2], [0, 0], [2, 0], [0, 2], [2, 2], 
+        );
+        
+        const texture_coord_cube2 = this.shapes.cube2.arrays.texture_coord;
+        for (let row_index = 0; row_index < texture_coord_cube2.length; row_index += 1) {
+            texture_coord_cube2[row_index][0] *= 3;
+            texture_coord_cube2[row_index][1] *= 3;
+        }
+        this.materials = {
+            room_wall: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/cloud.jpg", "NEAREST"),
+            }),
+            stars: new Material(new Shadow_Textured_Phong_Shader(1), {
+                color: color(.5, .5, .5, 1),
+                ambient: .4, diffusivity: .5, specularity: .5,
+                color_texture: new Texture("assets/stars.png"),
+                light_depth_texture: null
+    
+            }),
+            room_floor: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/wood.jpeg", "NEAREST"),
+            }),
+            shadow: new Material(new Shadow_Textured_Phong_Shader(1), {
+                color: hex_color("#D2691E"),
+                ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+                color_texture: null,
+                light_depth_texture: null
+            }),
+            keys: new Material(new Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1, smoothness: 64,
+                color_texture: new Texture("assets/stars.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            pure: new Material(new Color_Phong_Shader(), {
+                color: hex_color("#000000"),
+                ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            }),
+            bumps: new Material(new defs.Fake_Bump_Map(1), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: .1, specularity: .1, texture: new Texture("assets/grid.png")
+            }),
+            light_src: new Material(new Phong_Shader(), { // for light source
+                color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specularity: 0
+            }),
+            depth_tex: new Material(new Depth_Texture_Shader_2D(), { // For depth texture display
+                color: color(0, 0, .0, 1),
+                ambient: 1, diffusivity: 0, specularity: 0, texture: null
+            }),
+        }
 
         // To make sure texture initialization only does once
         this.init_ok = false;
     }
 
     make_control_panel() {
-        // // make_control_panel(): Sets up a panel of interactive HTML elements, including
-        // // buttons with key bindings for affecting this scene, and live info readouts.
-        // this.control_panel.innerHTML += "Dragonfly rotation angle: ";
-        // // The next line adds a live text readout of a data member of our Scene.
-        // this.live_string(box => {
-        //     box.textContent = (this.hover ? 0 : (this.t % (2 * Math.PI)).toFixed(2)) + " radians"
-        // });
-        // this.new_line();
-        // this.new_line();
-        // // Add buttons so the user can actively toggle data members of our Scene:
-        // this.key_triggered_button("Hover dragonfly in place", ["h"], function () {
-        //     this.hover ^= 1;
-        // });
-        // this.new_line();
-        // this.key_triggered_button("Swarm mode", ["m"], function () {
-        //     this.swarm ^= 1;
-        // });
 
         this.key_triggered_button("Do", ["z"], () => {
             this.do = !this.do;
@@ -239,8 +195,8 @@ export class Fur_Graphics extends Scene {
         this.lightDepthTexture = gl.createTexture();
         // Bind it to TinyGraphics
         this.light_depth_texture = new Buffered_Texture(this.lightDepthTexture);
-        this.stars.light_depth_texture = this.light_depth_texture
-        this.floor.light_depth_texture = this.light_depth_texture
+        this.materials.stars.light_depth_texture = this.light_depth_texture
+        this.materials.shadow.light_depth_texture = this.light_depth_texture
 
         this.lightDepthTextureSize = LIGHT_DEPTH_TEX_SIZE;
         gl.bindTexture(gl.TEXTURE_2D, this.lightDepthTexture);
@@ -322,26 +278,28 @@ export class Fur_Graphics extends Scene {
         if (draw_light_source && shadow_pass) {
             this.shapes.sphere.draw(context, program_state,
                 Mat4.translation(light_position[0], light_position[1], light_position[2]).times(Mat4.scale(.5,.5,.5)),
-                this.light_src.override({color: light_color}));
+                this.materials.light_src.override({color: light_color}));
         }
 
-        // for (let i of [-1, 1]) { // Spin the 3D model shapes as well.
-        //     const model_transform = Mat4.translation(2 * i, 3, 0)
-        //         .times(Mat4.rotation(t / 1000, -1, 2, 0))
-        //         .times(Mat4.rotation(-Math.PI / 2, 1, 0, 0));
-        //     this.shapes.teapot.draw(context, program_state, model_transform, shadow_pass? this.stars : this.pure);
-        // }
+        // Drawing Room
+        let model_trans_room_floor = Mat4.translation(0, - 4 - 0.4, 0).times(Mat4.scale(22, 0.1, 28));
+        let model_trans_room_back_wall = Mat4.translation(0,  2 - 0.1, -26).times(Mat4.scale(22, 8, 0.1));
+        // let model_trans_room_left_wall = Mat4.translation(-11, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+
+        this.shapes.cube2.draw(context, program_state, model_trans_room_floor, shadow_pass? this.materials.room_floor : this.materials.room_floor);
+        this.shapes.cube.draw(context, program_state, model_trans_room_back_wall, shadow_pass? this.materials.room_wall : this.materials.room_wall);
+        // this.shapes.cube.draw(context, program_state, model_trans_room_left_wall, shadow_pass? this.materials.room_wall : this.materials.room_wall);
 
         // Drawing Table
-        let model_trans_floor = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
-        let model_trans_wall_1 = Mat4.translation(-9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
-        let model_trans_wall_2 = Mat4.translation(+9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
-        let model_trans_wall_3 = Mat4.translation(0,  2 - 0.1, -3.5).times(Mat4.scale(8, 2, 0.33));
+        let model_trans_keys_table = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
+        let model_trans_left_leg = Mat4.translation(-9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+        let model_trans_right_leg = Mat4.translation(+9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+        let model_trans_book_stand = Mat4.translation(0,  2 - 0.1, -3.5).times(Mat4.scale(8, 2, 0.33));
         
-        this.shapes.cube.draw(context, program_state, model_trans_floor, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_wall_1, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_wall_2, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_wall_3, shadow_pass? this.floor : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_keys_table, shadow_pass? this.materials.shadow : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_left_leg, shadow_pass? this.materials.shadow : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_right_leg, shadow_pass? this.materials.shadow : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_book_stand, shadow_pass? this.materials.shadow : this.materials.pure);
         
         // Drawing Keys
         const unpressed_height = 0.6;
@@ -384,13 +342,13 @@ export class Fur_Graphics extends Scene {
         let model_trans_key_6 = Mat4.translation(6, this.la_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.la_key? pressed_height : unpressed_height, 3));
         let model_trans_key_7 = Mat4.translation(9, this.ti_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.ti_key? pressed_height : unpressed_height, 3));
 
-        this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.keys : this.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_1, this.materials.bumps);
+        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.materials.keys : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.materials.keys : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.materials.keys : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.materials.keys : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.materials.keys : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.materials.keys : this.materials.pure);
 
         // Drawing Shapes
         if (this.do) {
@@ -487,14 +445,14 @@ export class Fur_Graphics extends Scene {
         }
 
         this.shapes.shark.draw(context, program_state, this.do_transform, 
-                                this.keys.override({color: this.do_color}));
+                                this.materials.shadow.override({color: this.do_color}));
         this.shapes.torus.draw(context, program_state, this.re_transform, 
-                                this.keys.override({color: this.re_color}));
-        this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.planet);
-        this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.among_us);
-        this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.sphere); 
-        this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.arrow);
-        this.shapes.rubik_cube.draw(context, program_state, model_trans_shape_7, this.rubik_cube); 
+                                this.materials.pure.override({color: this.re_color}));
+        this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.materials.shadow.override({color: hex_color("#8A2BE2")}));
+        this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.materials.shadow.override({color: hex_color("#FF8C00")}));
+        this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.materials.shadow.override({color: hex_color("#00FF7F")})); 
+        this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.materials.shadow.override({color: hex_color("#00FFFF")}));
+        this.shapes.rubik_cube.draw(context, program_state, model_trans_shape_7, this.materials.shadow.override({color: hex_color("#FF4500")})); 
     }
 
     display(context, program_state) {
@@ -563,14 +521,6 @@ export class Fur_Graphics extends Scene {
         program_state.view_mat = program_state.camera_inverse;
         program_state.projection_transform = Mat4.perspective(Math.PI / 4, context.width / context.height, 0.5, 500);
         this.render_scene(context, program_state, true,true, true);
-
-        // Step 3: display the textures
-        // this.shapes.square_2d.draw(context, program_state,
-        //     Mat4.translation(-.99, .08, 0).times(
-        //     Mat4.scale(0.5, 0.5 * gl.canvas.width / gl.canvas.height, 1)
-        //     ),
-        //     this.depth_tex.override({texture: this.lightDepthTexture})
-        // );
     }
 
     // show_explanation(document_element) {
@@ -579,4 +529,6 @@ export class Fur_Graphics extends Scene {
     //         + "</p><p>One of these teapots is lit with bump mapping.  Can you tell which one?</p>";
     // }
 }
+
+
 
