@@ -28,10 +28,10 @@ export class Fur_Graphics extends Scene {
 
         // object states
         this.do_transform = Mat4.translation(-9, 5, -7);
-        this.do_color = color(1, 1, 1, 1);
+        this.do_color = color(1, 0.5, 0.2, 1);
         this.do_t = 0;
         this.re_transform = Mat4.translation(-6, 7, -7);
-        this.re_color = color(1, 1, 1, 1);
+        this.re_color = color(0.3, 0.6, 1, 1);
         this.re_t = 0;
 
         // animation states
@@ -39,6 +39,9 @@ export class Fur_Graphics extends Scene {
         this.animate_so = false;
         this.animate_la = false;
         this.animate_ti = false;
+
+        // flag for texture
+        this.texture = true;
 
         // Load the model file:
         this.shapes = {
@@ -56,8 +59,9 @@ export class Fur_Graphics extends Scene {
         };
 
         this.shapes.cube.arrays.texture_coord = Vector.cast(
-            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [2, 0], [0, 2], [2, 2], 
-            [0, 0], [2, 0], [0, 2], [2, 2], [0, 0], [2, 0], [0, 2], [2, 2], [0, 0], [2, 0], [0, 2], [2, 2], 
+            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], 
+            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], 
+            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5]
         );
         
         const texture_coord_cube2 = this.shapes.cube2.arrays.texture_coord;
@@ -85,14 +89,14 @@ export class Fur_Graphics extends Scene {
             }),
             shadow: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: hex_color("#D2691E"),
-                ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+                ambient: 0.6, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
                 color_texture: null,
                 light_depth_texture: null
             }),
-            keys: new Material(new Shadow_Textured_Phong_Shader(1), { // texture for piano keys
-                color: hex_color("#000000"),
-                ambient: 1, diffusivity: 0.1, specularity: 0.1, smoothness: 64,
-                color_texture: new Texture("assets/stars.png", "LINEAR_MIPMAP_LINEAR"),
+            keys: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(.5, .5, .5, 1),
+                ambient: 0.3, diffusivity: 0.5, specularity: 0.5, smoothness: 64,
+                color_texture: new Texture("assets/bumps.gif", "LINEAR_MIPMAP_LINEAR"),
                 light_depth_texture: null
             }),
             pure: new Material(new Color_Phong_Shader(), {
@@ -100,8 +104,8 @@ export class Fur_Graphics extends Scene {
                 ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
             }),
             bumps: new Material(new defs.Fake_Bump_Map(1), {
-                color: hex_color("#000000"),
-                ambient: 1, diffusivity: .1, specularity: .1, texture: new Texture("assets/grid.png")
+                color: color(.5, .5, .5, 1),
+                ambient: 0.3, diffusivity: 0.5, specularity: .5, texture: new Texture("assets/stars.png")
             }),
             light_src: new Material(new Phong_Shader(), { // for light source
                 color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specularity: 0
@@ -117,6 +121,7 @@ export class Fur_Graphics extends Scene {
     }
 
     make_control_panel() {
+        this.key_triggered_button("Texture", ["t"], () => {this.texture = !this.texture});
 
         this.key_triggered_button("Do", ["z"], () => {
             this.do = !this.do;
@@ -342,7 +347,14 @@ export class Fur_Graphics extends Scene {
         let model_trans_key_6 = Mat4.translation(6, this.la_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.la_key? pressed_height : unpressed_height, 3));
         let model_trans_key_7 = Mat4.translation(9, this.ti_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.ti_key? pressed_height : unpressed_height, 3));
 
-        this.shapes.cube.draw(context, program_state, model_trans_key_1, this.materials.bumps);
+        let key_material = shadow_pass?
+                               this.materials.shadow.override({color_texture: new Texture("assets/bumps.gif", "LINEAR_MIPMAP_LINEAR")}) 
+                               : this.materials.pure;
+        if (this.texture) {
+            key_material = this.materials.keys;   
+        }
+
+        this.shapes.cube.draw(context, program_state, model_trans_key_1, key_material);
         this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.materials.keys : this.materials.pure);
         this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.materials.keys : this.materials.pure);
         this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.materials.keys : this.materials.pure);
@@ -521,6 +533,8 @@ export class Fur_Graphics extends Scene {
         program_state.view_mat = program_state.camera_inverse;
         program_state.projection_transform = Mat4.perspective(Math.PI / 4, context.width / context.height, 0.5, 500);
         this.render_scene(context, program_state, true,true, true);
+
+        
     }
 
     // show_explanation(document_element) {
@@ -531,4 +545,80 @@ export class Fur_Graphics extends Scene {
 }
 
 
+class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
+    fragment_glsl_code() {
+        // ********* FRAGMENT SHADER *********
+        // Same as Shadow_Textured_Phong_Shader except adds a line to allow for bump mapping
+        return this.shared_glsl_code() + `
+            varying vec2 f_tex_coord;
+            uniform sampler2D texture;
+            uniform sampler2D light_depth_texture;
+            uniform mat4 light_view_mat;
+            uniform mat4 light_proj_mat;
+            uniform float animation_time;
+            uniform float light_depth_bias;
+            uniform bool use_texture;
+            uniform bool draw_shadow;
+            uniform float light_texture_size;
+
+            float PCF_shadow(vec2 center, float projected_depth) {
+                float shadow = 0.0;
+                float texel_size = 1.0 / light_texture_size;
+                for(int x = -1; x <= 1; ++x)
+                {
+                    for(int y = -1; y <= 1; ++y)
+                    {
+                        float light_depth_value = texture2D(light_depth_texture, center + vec2(x, y) * texel_size).r; 
+                        shadow += projected_depth >= light_depth_value + light_depth_bias ? 1.0 : 0.0;        
+                    }    
+                }
+                shadow /= 9.0;
+                return shadow;
+            }
+
+            void main(){
+                // Sample the texture image in the correct place:
+                vec4 tex_color = texture2D( texture, f_tex_coord );
+                if (!use_texture)
+                    tex_color = vec4(0, 0, 0, 1);
+                if( tex_color.w < .01 ) discard;
+
+                // Compute an initial (ambient) color:
+                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
+
+                // Compute the final color with contributions from lights:
+                vec3 diffuse, specular;
+                vec3 bumped_N  = N + tex_color.rgb - .5*vec3(1,1,1);
+                vec3 other_than_ambient = phong_model_lights( normalize( bumped_N ), vertex_worldspace, diffuse, specular );
+                gl_FragColor.xyz += other_than_ambient;
+
+
+                // Deal with shadow:
+                if (draw_shadow) {
+                    vec4 light_tex_coord = (light_proj_mat * light_view_mat * vec4(vertex_worldspace, 1.0));
+                    // convert NDCS from light's POV to light depth texture coordinates
+                    light_tex_coord.xyz /= light_tex_coord.w; 
+                    light_tex_coord.xyz *= 0.5;
+                    light_tex_coord.xyz += 0.5;
+                    float light_depth_value = texture2D( light_depth_texture, light_tex_coord.xy ).r;
+                    float projected_depth = light_tex_coord.z;
+
+                    bool inRange =
+                        light_tex_coord.x >= 0.0 &&
+                        light_tex_coord.x <= 1.0 &&
+                        light_tex_coord.y >= 0.0 &&
+                        light_tex_coord.y <= 1.0;
+
+                    float shadowness = PCF_shadow(light_tex_coord.xy, projected_depth);
+
+                    if (inRange && shadowness > 0.3) {
+                        diffuse *= 0.2 + 0.8 * (1.0 - shadowness);
+                        specular *= 1.0 - shadowness;
+                    }
+                }
+
+                gl_FragColor.xyz += diffuse + specular;
+            } `;
+    }
+}
 

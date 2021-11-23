@@ -794,7 +794,7 @@ const Fake_Bump_Map = defs.Fake_Bump_Map =
                     vec4 tex_color = texture2D( texture, f_tex_coord );
                     if( tex_color.w < .01 ) discard;
                     // Slightly disturb normals based on sampling the same image that was used for texturing:
-                    vec3 bumped_N  = N + 10.0*tex_color.rgb - .5*vec3(1,1,1);
+                    vec3 bumped_N  = N + tex_color.rgb - .5*vec3(1,1,1);
                     // Compute an initial (ambient) color:
                     gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
                     // Compute the final color with contributions from lights:
