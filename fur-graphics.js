@@ -28,7 +28,7 @@ export class Fur_Graphics extends Scene {
 
         // object states
         this.do_transform = Mat4.translation(-9, 5, -7);
-        this.do_color = color(1, 0.5, 0.2, 1);
+        this.do_color = color(0.9, 0.8, 0.1, 1);
         this.do_t = 0;
         this.re_transform = Mat4.translation(-6, 7, -7);
         this.re_color = color(0.3, 0.6, 1, 1);
@@ -59,11 +59,11 @@ export class Fur_Graphics extends Scene {
         };
 
         this.shapes.cube.arrays.texture_coord = Vector.cast(
-            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], 
-            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], 
-            [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5]
+            [0.25, 0], [0.75, 0], [0.25, 1], [0.75, 1], [0.25, 0], [0.75, 0], [0.25, 1], [0.75, 1],
+            [0, 0], [5, 0], [0, 1], [5, 1], [0, 0], [5, 0], [0, 1], [5, 1],
+            [0, 0], [1, 0], [0, 1], [1, 1], [0, 0], [1, 0], [0, 1], [1, 1], [0, 0],
         );
-        
+
         const texture_coord_cube2 = this.shapes.cube2.arrays.texture_coord;
         for (let row_index = 0; row_index < texture_coord_cube2.length; row_index += 1) {
             texture_coord_cube2[row_index][0] *= 3;
@@ -80,7 +80,7 @@ export class Fur_Graphics extends Scene {
                 ambient: .4, diffusivity: .5, specularity: .5,
                 color_texture: new Texture("assets/stars.png"),
                 light_depth_texture: null
-    
+
             }),
             room_floor: new Material(new Textured_Phong(), {
                 color: hex_color("#000000"),
@@ -100,11 +100,54 @@ export class Fur_Graphics extends Scene {
 //                 bump_texture: new Texture("assets/bumps.gif", "LINEAR_MIPMAP_LINEAR"),
 //                 light_depth_texture: null
 //             }),
-            keys: new Material(new Bump_Map(1), { // texture for piano keys
-                color: color(.5, .5, .5, 1),
-                ambient: 0.3, diffusivity: 0.5, specularity: 0.5,
-                texture: new Texture("assets/stars.png", "LINEAR_MIPMAP_LINEAR"),
-                bump_texture: new Texture("assets/bumps.gif", "LINEAR_MIPMAP_LINEAR")
+            keys1: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/waves.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/handbumps.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys2: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 12,
+                color_texture: new Texture("assets/donut.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/wrinklebumps.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys3: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/polygon.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/dogbumps.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys4: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/amongus.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/bump2.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys5: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/dots.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/stars.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys6: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/arrow.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/cube.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys7: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/cube.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/paperbump.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
             }),
             pure: new Material(new Color_Phong_Shader(), {
                 color: hex_color("#000000"),
@@ -307,12 +350,12 @@ export class Fur_Graphics extends Scene {
         let model_trans_left_leg = Mat4.translation(-9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
         let model_trans_right_leg = Mat4.translation(+9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
         let model_trans_book_stand = Mat4.translation(0,  2 - 0.1, -3.5).times(Mat4.scale(8, 2, 0.33));
-        
+
         this.shapes.cube.draw(context, program_state, model_trans_keys_table, shadow_pass? this.materials.shadow : this.materials.pure);
         this.shapes.cube.draw(context, program_state, model_trans_left_leg, shadow_pass? this.materials.shadow : this.materials.pure);
         this.shapes.cube.draw(context, program_state, model_trans_right_leg, shadow_pass? this.materials.shadow : this.materials.pure);
         this.shapes.cube.draw(context, program_state, model_trans_book_stand, shadow_pass? this.materials.shadow : this.materials.pure);
-        
+
         // Drawing Keys
         const unpressed_height = 0.6;
         const pressed_height = 0.3;
@@ -354,21 +397,14 @@ export class Fur_Graphics extends Scene {
         let model_trans_key_6 = Mat4.translation(6, this.la_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.la_key? pressed_height : unpressed_height, 3));
         let model_trans_key_7 = Mat4.translation(9, this.ti_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.ti_key? pressed_height : unpressed_height, 3));
 
-//         let key_material = shadow_pass?
-//                                this.materials.shadow.override({color: color(1, 1, 1, 1), 
-//                                color_texture: new Texture("assets/bumps.gif", "LINEAR_MIPMAP_LINEAR")}) 
-//                                : this.materials.pure;
-//         if (this.texture) {
-//             key_material = this.materials.keys;   
-//         }
 
-        this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.materials.keys : this.materials.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.materials.keys : this.materials.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.materials.keys : this.materials.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.materials.keys : this.materials.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.materials.keys : this.materials.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.materials.keys : this.materials.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.materials.keys : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.materials.keys1 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.materials.keys2 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.materials.keys3 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.materials.keys4 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.materials.keys5 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.materials.keys6 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.materials.keys7 : this.materials.pure);
 
         // Drawing Shapes
         if (this.do) {
@@ -376,7 +412,7 @@ export class Fur_Graphics extends Scene {
         }
         let model_trans_shape_1 = Mat4.translation(-9, 5, -7)
                                     .times(Mat4.rotation(this.sin_modifier(0.5, 2, this.do_t), 1, 0, 0));
-        let shape_1_color = color(this.sin_modifier(0.3, 5, this.do_t, 2.5, 0.5), 
+        let shape_1_color = color(this.sin_modifier(0.3, 5, this.do_t, 2.5, 0.5),
                                     this.cos_modifier(0.4, 2, this.do_t, 1, 0.5), 0.7, 1);
         if (!this.do) {
             model_trans_shape_1 = this.do_transform;
@@ -400,7 +436,7 @@ export class Fur_Graphics extends Scene {
             this.re_color = shape_2_color;
         }
 
-        let model_trans_shape_3 = Mat4.translation(-3, 6, -7);        
+        let model_trans_shape_3 = Mat4.translation(-3, 6, -7);
         if (this.animate_mi) {
             const animate_mi_period = 1;
             let animate_mi_elapsed_t = t - this.animate_mi_start_t;
@@ -464,15 +500,15 @@ export class Fur_Graphics extends Scene {
             }
         }
 
-        this.shapes.shark.draw(context, program_state, this.do_transform, 
+        this.shapes.shark.draw(context, program_state, this.do_transform,
                                 this.materials.shadow.override({color: this.do_color}));
-        this.shapes.torus.draw(context, program_state, this.re_transform, 
+        this.shapes.torus.draw(context, program_state, this.re_transform,
                                 this.materials.pure.override({color: this.re_color}));
         this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.materials.shadow.override({color: hex_color("#8A2BE2")}));
         this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.materials.shadow.override({color: hex_color("#FF8C00")}));
-        this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.materials.shadow.override({color: hex_color("#00FF7F")})); 
+        this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.materials.shadow.override({color: hex_color("#00FF7F")}));
         this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.materials.shadow.override({color: hex_color("#00FFFF")}));
-        this.shapes.rubik_cube.draw(context, program_state, model_trans_shape_7, this.materials.shadow.override({color: hex_color("#FF4500")})); 
+        this.shapes.rubik_cube.draw(context, program_state, model_trans_shape_7, this.materials.shadow.override({color: hex_color("#FF4500")}));
     }
 
     display(context, program_state) {
@@ -542,7 +578,7 @@ export class Fur_Graphics extends Scene {
         program_state.projection_transform = Mat4.perspective(Math.PI / 4, context.width / context.height, 0.5, 500);
         this.render_scene(context, program_state, true,true, true);
 
-        
+
     }
 
     // show_explanation(document_element) {
@@ -568,20 +604,20 @@ class Bump_Map extends Textured_Phong {
             // on to the next phase (fragment shader), then interpolated per-fragment, weighted by the
             // pixel fragment's proximity to each of the 3 vertices (barycentric interpolation).
             varying vec3 N, vertex_worldspace;
-            // ***** PHONG SHADING HAPPENS HERE: *****                                       
-            vec3 phong_model_lights( vec3 N, vec3 bumps_N, vec3 vertex_worldspace ){                                        
+            // ***** PHONG SHADING HAPPENS HERE: *****
+            vec3 phong_model_lights( vec3 N, vec3 bumps_N, vec3 vertex_worldspace ){
                 // phong_model_lights():  Add up the lights' contributions.
                 vec3 E = normalize( camera_center - vertex_worldspace );
                 vec3 result = vec3( 0.0 );
                 for(int i = 0; i < N_LIGHTS; i++){
-                    // Lights store homogeneous coords - either a position or vector.  If w is 0, the 
-                    // light will appear directional (uniform direction from all points), and we 
+                    // Lights store homogeneous coords - either a position or vector.  If w is 0, the
+                    // light will appear directional (uniform direction from all points), and we
                     // simply obtain a vector towards the light by directly using the stored value.
-                    // Otherwise if w is 1 it will appear as a point light -- compute the vector to 
-                    // the point light's location from the current surface point.  In either case, 
-                    // fade (attenuate) the light as the vector needed to reach it gets longer.  
-                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz - 
-                                                   light_positions_or_vectors[i].w * vertex_worldspace;                                             
+                    // Otherwise if w is 1 it will appear as a point light -- compute the vector to
+                    // the point light's location from the current surface point.  In either case,
+                    // fade (attenuate) the light as the vector needed to reach it gets longer.
+                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz -
+                                                   light_positions_or_vectors[i].w * vertex_worldspace;
                     float distance_to_light = length( surface_to_light_vector );
 
                     vec3 L = normalize( surface_to_light_vector );
@@ -611,13 +647,13 @@ class Bump_Map extends Textured_Phong {
                 vec4 tex_color = texture2D( texture, f_tex_coord );
                 if( tex_color.w < .01 ) discard;
 
-                // add bump_texture normal 
+                // add bump_texture normal
                 vec4 bump_color = texture2D( bump_texture, f_tex_coord );
 
                 // Slightly disturb normals based on sampling the same image that was used for texturing:
                 vec3 bumped_N  = N + bump_color.rgb - .5*vec3(1,1,1);
                 // Compute an initial (ambient) color:
-                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
+                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w );
                 // Compute the final color with contributions from lights:
                 gl_FragColor.xyz += phong_model_lights( normalize( N ), normalize( bumped_N ), vertex_worldspace );
               } `;
@@ -656,31 +692,31 @@ class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
             // on to the next phase (fragment shader), then interpolated per-fragment, weighted by the
             // pixel fragment's proximity to each of the 3 vertices (barycentric interpolation).
             varying vec3 N, vertex_worldspace;
-            // ***** PHONG SHADING HAPPENS HERE: *****                                       
-            vec3 phong_model_lights( vec3 N, vec3 bumps_N, vec3 vertex_worldspace, 
-                    out vec3 light_diffuse_contribution, out vec3 light_specular_contribution ){                                        
+            // ***** PHONG SHADING HAPPENS HERE: *****
+            vec3 phong_model_lights( vec3 N, vec3 bumps_N, vec3 vertex_worldspace,
+                    out vec3 light_diffuse_contribution, out vec3 light_specular_contribution ){
                 // phong_model_lights():  Add up the lights' contributions.
                 vec3 E = normalize( camera_center - vertex_worldspace );
                 vec3 result = vec3( 0.0 );
                 light_diffuse_contribution = vec3( 0.0 );
                 light_specular_contribution = vec3( 0.0 );
                 for(int i = 0; i < N_LIGHTS; i++){
-                    // Lights store homogeneous coords - either a position or vector.  If w is 0, the 
-                    // light will appear directional (uniform direction from all points), and we 
+                    // Lights store homogeneous coords - either a position or vector.  If w is 0, the
+                    // light will appear directional (uniform direction from all points), and we
                     // simply obtain a vector towards the light by directly using the stored value.
-                    // Otherwise if w is 1 it will appear as a point light -- compute the vector to 
-                    // the point light's location from the current surface point.  In either case, 
-                    // fade (attenuate) the light as the vector needed to reach it gets longer.  
-                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz - 
-                                                   light_positions_or_vectors[i].w * vertex_worldspace;                                             
+                    // Otherwise if w is 1 it will appear as a point light -- compute the vector to
+                    // the point light's location from the current surface point.  In either case,
+                    // fade (attenuate) the light as the vector needed to reach it gets longer.
+                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz -
+                                                   light_positions_or_vectors[i].w * vertex_worldspace;
                     float distance_to_light = length( surface_to_light_vector );
 
                     vec3 L = normalize( surface_to_light_vector );
                     vec3 H = normalize( L + E );
                     // Compute the diffuse and specular components from the Phong
                     // Reflection Model, using Blinn's "halfway vector" method:
-                    float diffuse  =      max( dot( N, L ), 0.0 );
-                    float specular = pow( max( dot( N, H ), 0.0 ), smoothness );
+                    float diffuse  =      max( dot( bumps_N, L ), 0.0 );
+                    float specular = pow( max( dot( bumps_N, H ), 0.0 ), smoothness );
                     float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light );
 
                     vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
@@ -716,9 +752,9 @@ class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
                 {
                     for(int y = -1; y <= 1; ++y)
                     {
-                        float light_depth_value = texture2D(light_depth_texture, center + vec2(x, y) * texel_size).r; 
-                        shadow += projected_depth >= light_depth_value + light_depth_bias ? 1.0 : 0.0;        
-                    }    
+                        float light_depth_value = texture2D(light_depth_texture, center + vec2(x, y) * texel_size).r;
+                        shadow += projected_depth >= light_depth_value + light_depth_bias ? 1.0 : 0.0;
+                    }
                 }
                 shadow /= 9.0;
                 return shadow;
@@ -732,15 +768,15 @@ class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
                 if( tex_color.w < .01 ) discard;
 
                 // Compute an initial (ambient) color:
-                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
+                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w );
 
                 // Compute the final color with contributions from lights:
                 vec3 diffuse, specular;
-                
+
                 // calculate the bumped_N from bump_texture
                 vec4 tex_bumps = texture2D( bump_texture, f_tex_coord );
 
-                vec3 bumped_N  = N + tex_bumps.rgb - .5*vec3(1,1,1);
+                vec3 bumped_N  = N + 10.*(tex_bumps.rgb - .5*vec3(1,1,1));
                 vec3 other_than_ambient = phong_model_lights( normalize( N ), normalize( bumped_N ), vertex_worldspace, diffuse, specular );
                 gl_FragColor.xyz += other_than_ambient;
 
@@ -749,7 +785,7 @@ class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
                 if (draw_shadow) {
                     vec4 light_tex_coord = (light_proj_mat * light_view_mat * vec4(vertex_worldspace, 1.0));
                     // convert NDCS from light's POV to light depth texture coordinates
-                    light_tex_coord.xyz /= light_tex_coord.w; 
+                    light_tex_coord.xyz /= light_tex_coord.w;
                     light_tex_coord.xyz *= 0.5;
                     light_tex_coord.xyz += 0.5;
                     float light_depth_value = texture2D( light_depth_texture, light_tex_coord.xy ).r;
@@ -791,7 +827,7 @@ class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
         // add bump texture to differentiate from color texture
         if (material.bump_texture && material.bump_texture.ready) {
             // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
-            context.uniform1i(gpu_addresses.bump_texture, 0); // 0 for bump texture
+            context.uniform1i(gpu_addresses.bump_texture, 2); // 0 for bump texture
             // For this draw, use the texture image from correct the GPU buffer:
             context.activeTexture(context["TEXTURE" + 2]);
             material.bump_texture.activate(context, 2);
@@ -815,4 +851,3 @@ class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
         }
     }
 }
-
