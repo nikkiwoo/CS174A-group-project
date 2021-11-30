@@ -82,10 +82,15 @@ export class Fur_Graphics extends Scene {
                 light_depth_texture: null
 
             }),
-            room_floor: new Material(new Textured_Phong(), {
+            wooden_floor: new Material(new Textured_Phong(), {
                 color: hex_color("#000000"),
                 ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/wood.jpeg", "NEAREST"),
+            }),
+            carpet_floor: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/carpet.jpg", "NEAREST"),
             }),
             shadow: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: hex_color("#D2691E"),
@@ -338,12 +343,16 @@ export class Fur_Graphics extends Scene {
 
         // Drawing Room
         let model_trans_room_floor = Mat4.translation(0, - 4 - 0.4, 0).times(Mat4.scale(22, 0.1, 28));
-        let model_trans_room_back_wall = Mat4.translation(0,  2 - 0.1, -26).times(Mat4.scale(22, 8, 0.1));
-        // let model_trans_room_left_wall = Mat4.translation(-11, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+        let model_trans_room_back_wall = Mat4.translation(0,  3 + 0.3, -28).times(Mat4.scale(22, 8, 0.1));
+        let model_trans_room_front_wall = Mat4.translation(0,  3 + 0.3, 28).times(Mat4.scale(22, 8, 0.1));
+        let model_trans_room_left_wall = Mat4.translation(-21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
+        let model_trans_room_right_wall = Mat4.translation(21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
 
-        this.shapes.cube2.draw(context, program_state, model_trans_room_floor, shadow_pass? this.materials.room_floor : this.materials.room_floor);
-        this.shapes.cube.draw(context, program_state, model_trans_room_back_wall, shadow_pass? this.materials.room_wall : this.materials.room_wall);
-        // this.shapes.cube.draw(context, program_state, model_trans_room_left_wall, shadow_pass? this.materials.room_wall : this.materials.room_wall);
+        this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.wooden_floor);
+        this.shapes.cube.draw(context, program_state, model_trans_room_back_wall, this.materials.room_wall);
+        this.shapes.cube.draw(context, program_state, model_trans_room_front_wall, this.materials.room_wall);
+        this.shapes.cube.draw(context, program_state, model_trans_room_left_wall, this.materials.room_wall);
+        this.shapes.cube.draw(context, program_state, model_trans_room_right_wall, this.materials.room_wall);
 
         // Drawing Table
         let model_trans_keys_table = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
@@ -529,7 +538,8 @@ export class Fur_Graphics extends Scene {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             // Define the global camera and projection matrices, which are stored in program_state.
             program_state.set_camera(Mat4.look_at(
-                vec3(0, 12, 18),
+                // vec3(0, 12, 18),
+                vec3(0, 12, 22),
                 vec3(0, 2, 0),
                 vec3(0, 1, 0)
             )); // Locate the camera here
