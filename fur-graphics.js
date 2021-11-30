@@ -43,6 +43,10 @@ export class Fur_Graphics extends Scene {
         // flag for texture
         this.texture = true;
 
+        // room decor states
+        this.floor = 1; 
+        this.wall = 1;
+
         // Load the model file:
         this.shapes = {
             "teapot": new Shape_From_File("assets/teapot.obj"),
@@ -70,10 +74,20 @@ export class Fur_Graphics extends Scene {
             texture_coord_cube2[row_index][1] *= 3;
         }
         this.materials = {
-            room_wall: new Material(new Textured_Phong(), {
+            cloud_wall: new Material(new Textured_Phong(), {
                 color: hex_color("#000000"),
                 ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/cloud.jpg", "NEAREST"),
+            }),
+            lines_wall: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/lines.jpeg", "NEAREST"),
+            }),
+            triangles_wall: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/triangles.jpeg", "NEAREST"),
             }),
             stars: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: color(.5, .5, .5, 1),
@@ -91,6 +105,11 @@ export class Fur_Graphics extends Scene {
                 color: hex_color("#000000"),
                 ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/carpet.jpg", "NEAREST"),
+            }),
+            rocky_floor: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/rocky.jpeg", "NEAREST"),
             }),
             shadow: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: hex_color("#D2691E"),
@@ -177,7 +196,14 @@ export class Fur_Graphics extends Scene {
 
     make_control_panel() {
         this.key_triggered_button("Texture", ["t"], () => {this.texture = !this.texture});
-
+        this.key_triggered_button("Change Floor", ["o"], () => {
+            this.floor === 3 ? this.floor = 1 : this.floor += 1;
+        });
+        this.key_triggered_button("Change Wall", ["l"], () => {
+            this.wall === 2 ? this.wall = 1 : this.wall += 1;
+        });
+        
+        this.new_line();
         this.key_triggered_button("Do", ["z"], () => {
             this.do = !this.do;
             if (!this.do_key) {
@@ -348,11 +374,15 @@ export class Fur_Graphics extends Scene {
         let model_trans_room_left_wall = Mat4.translation(-21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
         let model_trans_room_right_wall = Mat4.translation(21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
 
-        this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.wooden_floor);
-        this.shapes.cube.draw(context, program_state, model_trans_room_back_wall, this.materials.room_wall);
-        this.shapes.cube.draw(context, program_state, model_trans_room_front_wall, this.materials.room_wall);
-        this.shapes.cube.draw(context, program_state, model_trans_room_left_wall, this.materials.room_wall);
-        this.shapes.cube.draw(context, program_state, model_trans_room_right_wall, this.materials.room_wall);
+        this.floor === 1 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.wooden_floor) : 
+        this.floor === 2 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.carpet_floor)
+                         : this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.rocky_floor);
+        
+        let wall_material = (this.wall === 1 ? this.materials.cloud_wall : this.materials.triangles_wall);
+        this.shapes.cube2.draw(context, program_state, model_trans_room_back_wall, wall_material);
+        this.shapes.cube.draw(context, program_state, model_trans_room_front_wall, wall_material);
+        this.shapes.cube.draw(context, program_state, model_trans_room_left_wall, wall_material);
+        this.shapes.cube.draw(context, program_state, model_trans_room_right_wall, wall_material);
 
         // Drawing Table
         let model_trans_keys_table = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
