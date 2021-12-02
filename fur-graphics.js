@@ -1,31 +1,12 @@
 import {defs, tiny} from './examples/common.js';
 // Pull these names into this module's scope for convenience:
-const {vec3, vec4, vec, color, hex_color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene} = tiny;
+const {vec3, vec4, vec, Vector, color, hex_color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene} = tiny;
 const {Cube, Axis_Arrows, Textured_Phong, Phong_Shader, Basic_Shader, Subdivision_Sphere} = defs
 
 import {Shape_From_File} from './examples/obj-file-demo.js'
 import {Color_Phong_Shader, Shadow_Textured_Phong_Shader,
     Depth_Texture_Shader_2D, Buffered_Texture, LIGHT_DEPTH_TEX_SIZE} from './examples/shadow-demo-shaders.js'
 
-// 2D shape, to display the texture buffer
-const Square =
-    class Square extends tiny.Vertex_Buffer {
-        constructor() {
-            super("position", "normal", "texture_coord");
-            this.arrays.position = [
-                vec3(0, 0, 0), vec3(1, 0, 0), vec3(0, 1, 0),
-                vec3(1, 1, 0), vec3(1, 0, 0), vec3(0, 1, 0)
-            ];
-            this.arrays.normal = [
-                vec3(0, 0, 1), vec3(0, 0, 1), vec3(0, 0, 1),
-                vec3(0, 0, 1), vec3(0, 0, 1), vec3(0, 0, 1),
-            ];
-            this.arrays.texture_coord = [
-                vec(0, 0), vec(1, 0), vec(0, 1),
-                vec(1, 1), vec(1, 0), vec(0, 1)
-            ]
-        }
-    }
 
 // The scene
 export class Fur_Graphics extends Scene {
@@ -47,10 +28,10 @@ export class Fur_Graphics extends Scene {
 
         // object states
         this.do_transform = Mat4.translation(-9, 5, -7);
-        this.do_color = color(1, 1, 1, 1);
+        this.do_color = color(0.9, 0.8, 0.1, 1);
         this.do_t = 0;
         this.re_transform = Mat4.translation(-6, 7, -7);
-        this.re_color = color(1, 1, 1, 1);
+        this.re_color = color(0.3, 0.6, 1, 1);
         this.re_t = 0;
 
         // animation states
@@ -97,12 +78,19 @@ export class Fur_Graphics extends Scene {
         this.animate_ti_up_done = false;
         this.animate_ti_down_done = false;
 
+        // flag for texture
+        this.texture = true;
+
+        // room decor states
+        this.floor = 1; 
+        this.wall = 1;
+
         // Load the model file:
         this.shapes = {
             "teapot": new Shape_From_File("assets/teapot.obj"),
             "sphere": new Subdivision_Sphere(6),
             "cube": new Cube(),
-            "square_2d": new Square(),
+            "cube2": new Cube(),
             "torus": new defs.Torus(15, 15),
             "circle": new defs.Regular_2D_Polygon(1, 15),
             "planet": new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
@@ -112,94 +100,148 @@ export class Fur_Graphics extends Scene {
             "shark": new Shape_From_File("assets/shark.obj"),
         };
 
-        // For the teapot
-        this.stars = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: color(.5, .5, .5, 1),
-            ambient: .4, diffusivity: .5, specularity: .5,
-            color_texture: new Texture("assets/stars.png"),
-            light_depth_texture: null
+        this.shapes.cube.arrays.texture_coord = Vector.cast(
+            [0.25, 0], [0.75, 0], [0.25, 1], [0.75, 1], [0.25, 0], [0.75, 0], [0.25, 1], [0.75, 1],
+            [0, 0], [5, 0], [0, 1], [5, 1], [0, 0], [5, 0], [0, 1], [5, 1],
+            [0, 0], [1, 0], [0, 1], [1, 1], [0, 0], [1, 0], [0, 1], [1, 1], [0, 0],
+        );
 
-        });
-        // For the floor or other plain objects
-        this.floor = new Material(new Shadow_Textured_Phong_Shader(1), {
-            // color: color(1, 1, 1, 1), 
-            color: hex_color("#D2691E"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.rubik_cube = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#FF4500"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        }) 
-        this.arrow = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#00FFFF"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.sphere = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#00FF7F"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.among_us = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#FF8C00"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
-        this.planet = new Material(new Shadow_Textured_Phong_Shader(1), {
-            color: hex_color("#8A2BE2"),
-            ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-            color_texture: null,
-            light_depth_texture: null
-        })
+        const texture_coord_cube2 = this.shapes.cube2.arrays.texture_coord;
+        for (let row_index = 0; row_index < texture_coord_cube2.length; row_index += 1) {
+            texture_coord_cube2[row_index][0] *= 3;
+            texture_coord_cube2[row_index][1] *= 3;
+        }
+        this.materials = {
+            cloud_wall: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/cloud.jpg", "NEAREST"),
+            }),
+            lines_wall: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/lines.jpeg", "NEAREST"),
+            }),
+            triangles_wall: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/triangles.jpeg", "NEAREST"),
+            }),
+            stars: new Material(new Shadow_Textured_Phong_Shader(1), {
+                color: color(.5, .5, .5, 1),
+                ambient: .4, diffusivity: .5, specularity: .5,
+                color_texture: new Texture("assets/stars.png"),
+                light_depth_texture: null
 
-        this.keys = new Material(new Shadow_Textured_Phong_Shader(1), {
-          color: hex_color("#F5DEB3"),
-          ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
-          color_texture: null,
-          light_depth_texture: null
-        })
-        this.pure = new Material(new Color_Phong_Shader(), {
-        })
-        // For light source
-        this.light_src = new Material(new Phong_Shader(), {
-            color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specularity: 0
-        });
-        // For depth texture display
-        this.depth_tex =  new Material(new Depth_Texture_Shader_2D(), {
-            color: color(0, 0, .0, 1),
-            ambient: 1, diffusivity: 0, specularity: 0, texture: null
-        });
+            }),
+            wooden_floor: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/wood.jpeg", "NEAREST"),
+            }),
+            carpet_floor: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/carpet.jpg", "NEAREST"),
+            }),
+            rocky_floor: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/rocky.jpeg", "NEAREST"),
+            }),
+            shadow: new Material(new Shadow_Textured_Phong_Shader(1), {
+                color: hex_color("#D2691E"),
+                ambient: 0.6, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+                color_texture: null,
+                light_depth_texture: null
+            }),
+//             keys: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+//                 color: color(.5, .5, .5, 1),
+//                 ambient: 0.3, diffusivity: 0.5, specularity: 0.5, smoothness: 64,
+//                 color_texture: new Texture("assets/bump2.jpeg", "LINEAR_MIPMAP_LINEAR"),
+//                 bump_texture: new Texture("assets/bumps.gif", "LINEAR_MIPMAP_LINEAR"),
+//                 light_depth_texture: null
+//             }),
+            keys1: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/waves.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/handbumps.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys2: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 12,
+                color_texture: new Texture("assets/donut.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/wrinklebumps.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys3: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/polygon.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/dogbumps.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys4: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/amongus.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/bump2.jpeg", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys5: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/dots.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/stars.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys6: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/arrow.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/cube.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            keys7: new Material(new Bump_Shadow_Textured_Phong_Shader(1), { // texture for piano keys
+                color: color(0.6, .6, .6, 1),
+                ambient: 0.4, diffusivity: 0.5, specularity: 1, smoothness: 64,
+                color_texture: new Texture("assets/cube.png", "LINEAR_MIPMAP_LINEAR"),
+                bump_texture: new Texture("assets/paperbump.png", "LINEAR_MIPMAP_LINEAR"),
+                light_depth_texture: null
+            }),
+            pure: new Material(new Color_Phong_Shader(), {
+                color: hex_color("#000000"),
+                ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            }),
+            bumps: new Material(new defs.Fake_Bump_Map(1), {
+                color: color(.5, .5, .5, 1),
+                ambient: 0.3, diffusivity: 0.5, specularity: .5, texture: new Texture("assets/stars.png")
+            }),
+            light_src: new Material(new Phong_Shader(), { // for light source
+                color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specularity: 0
+            }),
+            depth_tex: new Material(new Depth_Texture_Shader_2D(), { // For depth texture display
+                color: color(0, 0, .0, 1),
+                ambient: 1, diffusivity: 0, specularity: 0, texture: null
+            }),
+        }
 
         // To make sure texture initialization only does once
         this.init_ok = false;
     }
 
     make_control_panel() {
-        // // make_control_panel(): Sets up a panel of interactive HTML elements, including
-        // // buttons with key bindings for affecting this scene, and live info readouts.
-        // this.control_panel.innerHTML += "Dragonfly rotation angle: ";
-        // // The next line adds a live text readout of a data member of our Scene.
-        // this.live_string(box => {
-        //     box.textContent = (this.hover ? 0 : (this.t % (2 * Math.PI)).toFixed(2)) + " radians"
-        // });
-        // this.new_line();
-        // this.new_line();
-        // // Add buttons so the user can actively toggle data members of our Scene:
-        // this.key_triggered_button("Hover dragonfly in place", ["h"], function () {
-        //     this.hover ^= 1;
-        // });
-        // this.new_line();
-        // this.key_triggered_button("Swarm mode", ["m"], function () {
-        //     this.swarm ^= 1;
-        // });
-
+        this.key_triggered_button("Texture", ["t"], () => {this.texture = !this.texture});
+        this.key_triggered_button("Change Floor", ["o"], () => {
+            this.floor === 3 ? this.floor = 1 : this.floor += 1;
+        });
+        this.key_triggered_button("Change Wall", ["l"], () => {
+            this.wall === 2 ? this.wall = 1 : this.wall += 1;
+        });
+        
+        this.new_line();
         this.key_triggered_button("Do", ["z"], () => {
             this.do_key = true;
             this.do = true;
@@ -325,8 +367,8 @@ export class Fur_Graphics extends Scene {
         this.lightDepthTexture = gl.createTexture();
         // Bind it to TinyGraphics
         this.light_depth_texture = new Buffered_Texture(this.lightDepthTexture);
-        this.stars.light_depth_texture = this.light_depth_texture
-        this.floor.light_depth_texture = this.light_depth_texture
+        this.materials.stars.light_depth_texture = this.light_depth_texture
+        this.materials.shadow.light_depth_texture = this.light_depth_texture
 
         this.lightDepthTextureSize = LIGHT_DEPTH_TEX_SIZE;
         gl.bindTexture(gl.TEXTURE_2D, this.lightDepthTexture);
@@ -408,27 +450,37 @@ export class Fur_Graphics extends Scene {
         if (draw_light_source && shadow_pass) {
             this.shapes.sphere.draw(context, program_state,
                 Mat4.translation(light_position[0], light_position[1], light_position[2]).times(Mat4.scale(.5,.5,.5)),
-                this.light_src.override({color: light_color}));
+                this.materials.light_src.override({color: light_color}));
         }
 
-        // for (let i of [-1, 1]) { // Spin the 3D model shapes as well.
-        //     const model_transform = Mat4.translation(2 * i, 3, 0)
-        //         .times(Mat4.rotation(t / 1000, -1, 2, 0))
-        //         .times(Mat4.rotation(-Math.PI / 2, 1, 0, 0));
-        //     this.shapes.teapot.draw(context, program_state, model_transform, shadow_pass? this.stars : this.pure);
-        // }
+        // Drawing Room
+        let model_trans_room_floor = Mat4.translation(0, - 4 - 0.4, 0).times(Mat4.scale(22, 0.1, 28));
+        let model_trans_room_back_wall = Mat4.translation(0,  3 + 0.3, -28).times(Mat4.scale(22, 8, 0.1));
+        let model_trans_room_front_wall = Mat4.translation(0,  3 + 0.3, 28).times(Mat4.scale(22, 8, 0.1));
+        let model_trans_room_left_wall = Mat4.translation(-21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
+        let model_trans_room_right_wall = Mat4.translation(21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
+
+        this.floor === 1 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.wooden_floor) : 
+        this.floor === 2 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.carpet_floor)
+                         : this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.rocky_floor);
+        
+        let wall_material = (this.wall === 1 ? this.materials.cloud_wall : this.materials.triangles_wall);
+        this.shapes.cube2.draw(context, program_state, model_trans_room_back_wall, wall_material);
+        this.shapes.cube.draw(context, program_state, model_trans_room_front_wall, wall_material);
+        this.shapes.cube.draw(context, program_state, model_trans_room_left_wall, wall_material);
+        this.shapes.cube.draw(context, program_state, model_trans_room_right_wall, wall_material);
 
         // Drawing Table
-        let model_trans_floor = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
-        let model_trans_wall_1 = Mat4.translation(-9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
-        let model_trans_wall_2 = Mat4.translation(+9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
-        let model_trans_wall_3 = Mat4.translation(0,  2 - 0.1, -3.5).times(Mat4.scale(8, 2, 0.33));
-        
-        this.shapes.cube.draw(context, program_state, model_trans_floor, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_wall_1, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_wall_2, shadow_pass? this.floor : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_wall_3, shadow_pass? this.floor : this.pure);
-        
+        let model_trans_keys_table = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
+        let model_trans_left_leg = Mat4.translation(-9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+        let model_trans_right_leg = Mat4.translation(+9.5, - 2 - 0.2, 0).times(Mat4.scale(0.33, 2, 4));
+        let model_trans_book_stand = Mat4.translation(0,  2 - 0.1, -3.5).times(Mat4.scale(8, 2, 0.33));
+
+        this.shapes.cube.draw(context, program_state, model_trans_keys_table, shadow_pass? this.materials.shadow : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_left_leg, shadow_pass? this.materials.shadow : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_right_leg, shadow_pass? this.materials.shadow : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_book_stand, shadow_pass? this.materials.shadow : this.materials.pure);
+
         // Drawing Keys
         const unpressed_height = 0.6;
         const pressed_height = 0.3;
@@ -441,13 +493,14 @@ export class Fur_Graphics extends Scene {
         let model_trans_key_6 = Mat4.translation(6, this.la_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.la_key? pressed_height : unpressed_height, 3));
         let model_trans_key_7 = Mat4.translation(9, this.ti_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.ti_key? pressed_height : unpressed_height, 3));
 
-        this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.keys : this.pure);
-        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.keys : this.pure);
+
+        this.shapes.cube.draw(context, program_state, model_trans_key_1, shadow_pass? this.materials.keys1 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_2, shadow_pass? this.materials.keys2 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_3, shadow_pass? this.materials.keys3 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_4, shadow_pass? this.materials.keys4 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_5, shadow_pass? this.materials.keys5 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_6, shadow_pass? this.materials.keys6 : this.materials.pure);
+        this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.materials.keys7 : this.materials.pure);
 
         // Drawing Shapes
         if (this.animate_do_up) {
@@ -607,15 +660,15 @@ export class Fur_Graphics extends Scene {
         }
         let model_trans_shape_7 = Mat4.translation(9, 7, -7).times(Mat4.rotation(this.ti_shift, 0, 0.01+this.ti_shift, 0));
 
-        this.shapes.shark.draw(context, program_state, model_trans_shape_1, 
-                                this.keys.override({color: shape_1_color}));
-        this.shapes.torus.draw(context, program_state, model_trans_shape_2, 
-                                this.keys.override({color: shape_2_color}));
-        this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.planet);
-        this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.among_us);
-        this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.sphere); 
-        this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.arrow);
-        this.shapes.rubik_cube.draw(context, program_state, model_trans_shape_7, this.rubik_cube); 
+        this.shapes.shark.draw(context, program_state, model_trans_shape_1,
+                                this.materials.shadow.override({color: shape_1_color}));
+        this.shapes.torus.draw(context, program_state, model_trans_shape_2,
+                                this.materials.pure.override({color: shape_2_color}));
+        this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.materials.shadow.override({color: hex_color("#8A2BE2")}));
+        this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.materials.shadow.override({color: hex_color("#FF8C00")}));
+        this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.materials.shadow.override({color: hex_color("#00FF7F")}));
+        this.shapes.arrow.draw(context, program_state, model_trans_shape_6, this.materials.shadow.override({color: hex_color("#00FFFF")}));
+        this.shapes.rubik_cube.draw(context, program_state, model_trans_shape_7, this.materials.shadow.override({color: hex_color("#FF4500")}));
     }
 
     display(context, program_state) {
@@ -636,7 +689,8 @@ export class Fur_Graphics extends Scene {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             // Define the global camera and projection matrices, which are stored in program_state.
             program_state.set_camera(Mat4.look_at(
-                vec3(0, 12, 18),
+                // vec3(0, 12, 18),
+                vec3(0, 12, 22),
                 vec3(0, 2, 0),
                 vec3(0, 1, 0)
             )); // Locate the camera here
@@ -685,13 +739,7 @@ export class Fur_Graphics extends Scene {
         program_state.projection_transform = Mat4.perspective(Math.PI / 4, context.width / context.height, 0.5, 500);
         this.render_scene(context, program_state, true,true, true);
 
-        // Step 3: display the textures
-        // this.shapes.square_2d.draw(context, program_state,
-        //     Mat4.translation(-.99, .08, 0).times(
-        //     Mat4.scale(0.5, 0.5 * gl.canvas.width / gl.canvas.height, 1)
-        //     ),
-        //     this.depth_tex.override({texture: this.lightDepthTexture})
-        // );
+
     }
 
     // show_explanation(document_element) {
@@ -701,3 +749,266 @@ export class Fur_Graphics extends Scene {
     // }
 }
 
+
+class Bump_Map extends Textured_Phong {
+    shared_glsl_code() {
+        // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
+        return ` precision mediump float;
+            const int N_LIGHTS = ` + this.num_lights + `;
+            uniform float ambient, diffusivity, specularity, smoothness;
+            uniform vec4 light_positions_or_vectors[N_LIGHTS], light_colors[N_LIGHTS];
+            uniform float light_attenuation_factors[N_LIGHTS];
+            uniform vec4 shape_color;
+            uniform vec3 squared_scale, camera_center;
+
+            // Specifier "varying" means a variable's final value will be passed from the vertex shader
+            // on to the next phase (fragment shader), then interpolated per-fragment, weighted by the
+            // pixel fragment's proximity to each of the 3 vertices (barycentric interpolation).
+            varying vec3 N, vertex_worldspace;
+            // ***** PHONG SHADING HAPPENS HERE: *****
+            vec3 phong_model_lights( vec3 N, vec3 bumps_N, vec3 vertex_worldspace ){
+                // phong_model_lights():  Add up the lights' contributions.
+                vec3 E = normalize( camera_center - vertex_worldspace );
+                vec3 result = vec3( 0.0 );
+                for(int i = 0; i < N_LIGHTS; i++){
+                    // Lights store homogeneous coords - either a position or vector.  If w is 0, the
+                    // light will appear directional (uniform direction from all points), and we
+                    // simply obtain a vector towards the light by directly using the stored value.
+                    // Otherwise if w is 1 it will appear as a point light -- compute the vector to
+                    // the point light's location from the current surface point.  In either case,
+                    // fade (attenuate) the light as the vector needed to reach it gets longer.
+                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz -
+                                                   light_positions_or_vectors[i].w * vertex_worldspace;
+                    float distance_to_light = length( surface_to_light_vector );
+
+                    vec3 L = normalize( surface_to_light_vector );
+                    vec3 H = normalize( L + E );
+                    // Compute the diffuse and specular components from the Phong
+                    // Reflection Model, using Blinn's "halfway vector" method:
+                    float diffuse  =      max( dot( bumps_N, L ), 0.0 );
+                    float specular = pow( max( dot( bumps_N, H ), 0.0 ), smoothness );
+                    float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light );
+
+                    vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
+                                                              + light_colors[i].xyz * specularity * specular;
+                    result += attenuation * light_contribution;
+                  }
+                return result;
+              } `;
+    }
+    fragment_glsl_code() {
+        // ********* FRAGMENT SHADER *********
+        return this.shared_glsl_code() + `
+            varying vec2 f_tex_coord;
+            uniform sampler2D texture;
+            uniform sampler2D bump_texture;
+
+            void main(){
+                // Sample the texture image in the correct place:
+                vec4 tex_color = texture2D( texture, f_tex_coord );
+                if( tex_color.w < .01 ) discard;
+
+                // add bump_texture normal
+                vec4 bump_color = texture2D( bump_texture, f_tex_coord );
+
+                // Slightly disturb normals based on sampling the same image that was used for texturing:
+                vec3 bumped_N  = N + bump_color.rgb - .5*vec3(1,1,1);
+                // Compute an initial (ambient) color:
+                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w );
+                // Compute the final color with contributions from lights:
+                gl_FragColor.xyz += phong_model_lights( normalize( N ), normalize( bumped_N ), vertex_worldspace );
+              } `;
+    }
+    update_GPU(context, gpu_addresses, gpu_state, model_transform, material) {
+        // update_GPU(): Add a little more to the base class's version of this method.
+        super.update_GPU(context, gpu_addresses, gpu_state, model_transform, material);
+
+        if (material.texture && material.texture.ready) {
+            // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
+            context.uniform1i(gpu_addresses.texture, 0);
+            // For this draw, use the texture image from correct the GPU buffer:
+            material.texture.activate(context);
+        }
+
+        if (material.bump_texture && material.bump_texture.ready) {
+            context.uniform1i(gpu_addresses.bump_texture, 1);
+            material.bump_texture.activate(context, 1);
+        }
+    }
+}
+
+
+class Bump_Shadow_Textured_Phong_Shader extends Shadow_Textured_Phong_Shader {
+    shared_glsl_code() {
+        // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
+        return ` precision mediump float;
+            const int N_LIGHTS = ` + this.num_lights + `;
+            uniform float ambient, diffusivity, specularity, smoothness;
+            uniform vec4 light_positions_or_vectors[N_LIGHTS], light_colors[N_LIGHTS];
+            uniform float light_attenuation_factors[N_LIGHTS];
+            uniform vec4 shape_color;
+            uniform vec3 squared_scale, camera_center;
+
+            // Specifier "varying" means a variable's final value will be passed from the vertex shader
+            // on to the next phase (fragment shader), then interpolated per-fragment, weighted by the
+            // pixel fragment's proximity to each of the 3 vertices (barycentric interpolation).
+            varying vec3 N, vertex_worldspace;
+            // ***** PHONG SHADING HAPPENS HERE: *****
+            vec3 phong_model_lights( vec3 N, vec3 bumps_N, vec3 vertex_worldspace,
+                    out vec3 light_diffuse_contribution, out vec3 light_specular_contribution ){
+                // phong_model_lights():  Add up the lights' contributions.
+                vec3 E = normalize( camera_center - vertex_worldspace );
+                vec3 result = vec3( 0.0 );
+                light_diffuse_contribution = vec3( 0.0 );
+                light_specular_contribution = vec3( 0.0 );
+                for(int i = 0; i < N_LIGHTS; i++){
+                    // Lights store homogeneous coords - either a position or vector.  If w is 0, the
+                    // light will appear directional (uniform direction from all points), and we
+                    // simply obtain a vector towards the light by directly using the stored value.
+                    // Otherwise if w is 1 it will appear as a point light -- compute the vector to
+                    // the point light's location from the current surface point.  In either case,
+                    // fade (attenuate) the light as the vector needed to reach it gets longer.
+                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz -
+                                                   light_positions_or_vectors[i].w * vertex_worldspace;
+                    float distance_to_light = length( surface_to_light_vector );
+
+                    vec3 L = normalize( surface_to_light_vector );
+                    vec3 H = normalize( L + E );
+                    // Compute the diffuse and specular components from the Phong
+                    // Reflection Model, using Blinn's "halfway vector" method:
+                    float diffuse  =      max( dot( bumps_N, L ), 0.0 );
+                    float specular = pow( max( dot( bumps_N, H ), 0.0 ), smoothness );
+                    float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light );
+
+                    vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
+                                                              + light_colors[i].xyz * specularity * specular;
+                    light_diffuse_contribution += attenuation * shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse;
+                    light_specular_contribution += attenuation * shape_color.xyz * specularity * specular;
+                    result += attenuation * light_contribution;
+                  }
+                return result;
+              } `;
+    }
+    fragment_glsl_code() {
+        // ********* FRAGMENT SHADER *********
+        // Same as Shadow_Textured_Phong_Shader except adds a line to allow for bump mapping
+        return this.shared_glsl_code() + `
+            varying vec2 f_tex_coord;
+            uniform sampler2D texture;
+            uniform sampler2D bump_texture;
+            uniform sampler2D light_depth_texture;
+            uniform mat4 light_view_mat;
+            uniform mat4 light_proj_mat;
+            uniform float animation_time;
+            uniform float light_depth_bias;
+            uniform bool use_texture;
+            uniform bool use_bump_texture;
+            uniform bool draw_shadow;
+            uniform float light_texture_size;
+
+            float PCF_shadow(vec2 center, float projected_depth) {
+                float shadow = 0.0;
+                float texel_size = 1.0 / light_texture_size;
+                for(int x = -1; x <= 1; ++x)
+                {
+                    for(int y = -1; y <= 1; ++y)
+                    {
+                        float light_depth_value = texture2D(light_depth_texture, center + vec2(x, y) * texel_size).r;
+                        shadow += projected_depth >= light_depth_value + light_depth_bias ? 1.0 : 0.0;
+                    }
+                }
+                shadow /= 9.0;
+                return shadow;
+            }
+
+            void main(){
+                // Sample the texture image in the correct place:
+                vec4 tex_color = texture2D( texture, f_tex_coord );
+                if (!use_texture)
+                    tex_color = vec4(0, 0, 0, 1);
+                if( tex_color.w < .01 ) discard;
+
+                // Compute an initial (ambient) color:
+                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w );
+
+                // Compute the final color with contributions from lights:
+                vec3 diffuse, specular;
+
+                // calculate the bumped_N from bump_texture
+                vec4 tex_bumps = texture2D( bump_texture, f_tex_coord );
+
+                vec3 bumped_N  = N + 10.*(tex_bumps.rgb - .5*vec3(1,1,1));
+                vec3 other_than_ambient = phong_model_lights( normalize( N ), normalize( bumped_N ), vertex_worldspace, diffuse, specular );
+                gl_FragColor.xyz += other_than_ambient;
+
+
+                // Deal with shadow:
+                if (draw_shadow) {
+                    vec4 light_tex_coord = (light_proj_mat * light_view_mat * vec4(vertex_worldspace, 1.0));
+                    // convert NDCS from light's POV to light depth texture coordinates
+                    light_tex_coord.xyz /= light_tex_coord.w;
+                    light_tex_coord.xyz *= 0.5;
+                    light_tex_coord.xyz += 0.5;
+                    float light_depth_value = texture2D( light_depth_texture, light_tex_coord.xy ).r;
+                    float projected_depth = light_tex_coord.z;
+
+                    bool inRange =
+                        light_tex_coord.x >= 0.0 &&
+                        light_tex_coord.x <= 1.0 &&
+                        light_tex_coord.y >= 0.0 &&
+                        light_tex_coord.y <= 1.0;
+
+                    float shadowness = PCF_shadow(light_tex_coord.xy, projected_depth);
+
+                    if (inRange && shadowness > 0.3) {
+                        diffuse *= 0.2 + 0.8 * (1.0 - shadowness);
+                        specular *= 1.0 - shadowness;
+                    }
+                }
+
+                gl_FragColor.xyz += diffuse + specular;
+            } `;
+    }
+    update_GPU(context, gpu_addresses, gpu_state, model_transform, material) {
+        // update_GPU(): Add a little more to the base class's version of this method.
+        super.update_GPU(context, gpu_addresses, gpu_state, model_transform, material);
+        // Updated for assignment 4
+        context.uniform1f(gpu_addresses.animation_time, gpu_state.animation_time / 1000);
+        if (material.color_texture && material.color_texture.ready) {
+            // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
+            context.uniform1i(gpu_addresses.color_texture, 0); // 0 for color texture
+            // For this draw, use the texture image from correct the GPU buffer:
+            context.activeTexture(context["TEXTURE" + 0]);
+            material.color_texture.activate(context);
+            context.uniform1i(gpu_addresses.use_texture, 1);
+        }
+        else {
+            context.uniform1i(gpu_addresses.use_texture, 0);
+        }
+        // add bump texture to differentiate from color texture
+        if (material.bump_texture && material.bump_texture.ready) {
+            // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
+            context.uniform1i(gpu_addresses.bump_texture, 2); // 0 for bump texture
+            // For this draw, use the texture image from correct the GPU buffer:
+            context.activeTexture(context["TEXTURE" + 2]);
+            material.bump_texture.activate(context, 2);
+            context.uniform1i(gpu_addresses.use_bump_texture, 1);
+        }
+        else {
+            context.uniform1i(gpu_addresses.use_bump_texture, 0);
+        }
+        if (gpu_state.draw_shadow) {
+            context.uniform1i(gpu_addresses.draw_shadow, 1);
+            context.uniform1f(gpu_addresses.light_depth_bias, 0.003);
+            context.uniform1f(gpu_addresses.light_texture_size, LIGHT_DEPTH_TEX_SIZE);
+            context.uniform1i(gpu_addresses.light_depth_texture, 1); // 1 for light-view depth texture}
+            if (material.light_depth_texture && material.light_depth_texture.ready) {
+                context.activeTexture(context["TEXTURE" + 1]);
+                material.light_depth_texture.activate(context, 1);
+            }
+        }
+        else {
+            context.uniform1i(gpu_addresses.draw_shadow, 0);
+        }
+    }
+}

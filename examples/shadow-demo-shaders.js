@@ -207,6 +207,8 @@ export class Shadow_Textured_Phong_Shader extends defs.Phong_Shader {
                     // Compute the final color with contributions from lights:
                     vec3 diffuse, specular;
                     vec3 other_than_ambient = phong_model_lights( normalize( N ), vertex_worldspace, diffuse, specular );
+                    gl_FragColor.xyz += other_than_ambient;
+                    
                     
                     // Deal with shadow:
                     if (draw_shadow) {
