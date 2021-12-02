@@ -54,10 +54,48 @@ export class Fur_Graphics extends Scene {
         this.re_t = 0;
 
         // animation states
-        this.animate_fa = false;
-        this.animate_so = false;
-        this.animate_la = false;
-        this.animate_ti = false;
+        this.do_shift = 0;
+        this.animate_do_up = false;
+        this.animate_do_down = false;
+        this.animate_do_up_done = false;
+        this.animate_do_down_done = false;
+
+        this.re_shift = 4;
+        this.animate_re_up = false;
+        this.animate_re_down = false;
+        this.animate_re_up_done = false;
+        this.animate_re_down_done = false;
+
+        this.mi_shift = -7;
+        this.mi_rot = 0;
+        this.animate_mi_up = false;
+        this.animate_mi_down = false;
+        this.animate_mi_up_done = false;
+        this.animate_mi_down_done = false;
+
+        this.fa_shift = 1;
+        this.animate_fa_up = false;
+        this.animate_fa_down = false;
+        this.animate_fa_up_done = false;
+        this.animate_fa_down_done = false;
+
+        this.so_shift = 0;
+        this.animate_so_up = false;
+        this.animate_so_down = false;
+        this.animate_so_up_done = false;
+        this.animate_so_down_done = false;
+
+        this.la_shift = 5;
+        this.animate_la_up = false;
+        this.animate_la_down = false;
+        this.animate_la_up_done = false;
+        this.animate_la_down_done = false;
+
+        this.ti_shift = 0;
+        this.animate_ti_up = false;
+        this.animate_ti_down = false;
+        this.animate_ti_up_done = false;
+        this.animate_ti_down_done = false;
 
         // Load the model file:
         this.shapes = {
@@ -163,73 +201,121 @@ export class Fur_Graphics extends Scene {
         // });
 
         this.key_triggered_button("Do", ["z"], () => {
-            this.do = !this.do;
-            if (!this.do_key) {
-                this.do_start_t = this.t;
-                this.do_key = true;
+            this.do_key = true;
+            this.do = true;
+            if (!this.animate_do_up && !this.animate_do_up_done) {
+                this.animate_do_up = true;
+                this.animate_do_down_done = false;
+                this.animate_do_down = false;
+            }
+        }, '#6E6460', () => {
+            this.do_key = false;
+            this.do = true;
+            if (!this.animate_do_down && !this.animate_do_down_done) {
+                this.animate_do_down = true;
+                this.animate_do_up_done = false;
+                this.animate_do_up = false;
             }
         });
 
         this.key_triggered_button("Re", ["x"], () => {
-            this.re = !this.re;
-            if (!this.re_key) {
-                this.re_start_t = this.t;
-                this.re_key = true;
+            this.re_key = true;
+            this.re = true;
+            if (!this.animate_re_up && !this.animate_re_up_done) {
+                this.animate_re_up = true;
+                this.animate_re_down_done = false;
+                this.animate_re_down = false;
+            }
+        }, '#6E6460', () => {
+            this.re_key = false;
+            this.re = true;
+            if (!this.animate_re_down && !this.animate_re_down_done) {
+                this.animate_re_down = true;
+                this.animate_re_up_done = false;
+                this.animate_re_up = false;
             }
         });
 
         this.key_triggered_button("Mi", ["c"], () => {
-            if (!this.mi_key) {
-                this.mi_start_t = this.t;
-                this.mi_key = true;
+            this.mi_key = true;
+            if (!this.animate_mi_up && !this.animate_mi_up_done) {
+                this.animate_mi_up = true;
+                this.animate_mi_down_done = false;
+                this.animate_mi_down = false;
             }
-            if (!this.animate_mi) {
-                this.animate_mi_start_t = this.t;
-                this.animate_mi = true;
+        }, '#6E6460', () => {
+            this.mi_key = false;
+            if (!this.animate_mi_down && !this.animate_mi_down_done) {
+                this.animate_mi_down = true;
+                this.animate_mi_up_done = false;
+                this.animate_mi_up = false;
+                
             }
         });
 
         this.key_triggered_button("Fa", ["v"], () => {
-            if (!this.fa_key) {
-                this.fa_start_t = this.t;
-                this.fa_key = true;
+            this.fa_key = true;
+            if (!this.animate_fa_up && !this.animate_fa_up_done) {
+                this.animate_fa_up = true;
+                this.animate_fa_down_done = false;
+                this.animate_fa_down = false;
             }
-            if (!this.animate_fa) {
-                this.animate_fa_start_t = this.t;
-                this.animate_fa = true;
+        }, '#6E6460', () => {
+            this.fa_key = false;
+            if (!this.animate_fa_down && !this.animate_fa_down_done) {
+                this.animate_fa_down = true;
+                this.animate_fa_up_done = false;
+                this.animate_fa_up = false;
             }
         });
 
         this.key_triggered_button("So", ["b"], () => {
-            if (!this.so_key) {
-                this.so_start_t = this.t;
-                this.so_key = true;
+            this.so_key = true;
+            if (!this.animate_so_up && !this.animate_so_up_done) {
+                this.animate_so_up = true;
+                this.animate_so_down_done = false;
+                this.animate_so_down = false;
             }
-            if (!this.animate_so) {
-                this.animate_so_start_t = this.t;
-                this.animate_so = true;
+        }, '#6E6460', () => {
+            this.so_key = false;
+            if (!this.animate_so_down && !this.animate_so_down_done) {
+                this.animate_so_down = true;
+                this.animate_so_up_done = false;
+                this.animate_so_up = false;
             }
         });
 
         this.key_triggered_button("La", ["n"], () => {
-            if (!this.la_key) {
-                this.la_start_t = this.t;
-                this.la_key = true;
+            this.la_key = true;
+            if (!this.animate_la_up && !this.animate_la_up_done) {
+                this.animate_la_up = true;
+                this.animate_la_down_done = false;
+                this.animate_la_down = false;
             }
-            if (!this.animate_la) {
-                this.animate_la_start_t = this.t;
-                this.animate_la = true;
+        }, '#6E6460', () => {
+            this.la_key = false;
+            if (!this.animate_la_down && !this.animate_la_down_done) {
+                this.animate_la_down = true;
+                this.animate_la_up_done = false;
+                this.animate_la_up = false;
+                
             }
         });
 
         this.key_triggered_button("Ti", ["m"], () => {
-            if (!this.ti_key) {
-                this.ti_start_t = this.t;
-                this.ti_key = true;
+            this.ti_key = true;
+            if (!this.animate_ti_up && !this.animate_ti_up_done) {
+                this.animate_ti_up = true;
+                this.animate_ti_down_done = false;
+                this.animate_ti_down = false;
             }
-            if (!this.animate_ti) {
-                this.animate_ti_start_t = this.t;
-                this.animate_ti = true;
+        }, '#6E6460', () => {
+            this.ti_key = false;
+            if (!this.animate_ti_down && !this.animate_ti_down_done) {
+                this.animate_ti_down = true;
+                this.animate_ti_up_done = false;
+                this.animate_ti_up = false;
+                
             }
         });
     }
@@ -347,35 +433,6 @@ export class Fur_Graphics extends Scene {
         const unpressed_height = 0.6;
         const pressed_height = 0.3;
 
-        if (this.do_key) {
-            let do_elapsed_t = t - this.do_start_t;
-            if (do_elapsed_t >= 0.2) this.do_key = false;
-        }
-        if (this.re_key) {
-            let re_elapsed_t = t - this.re_start_t;
-            if (re_elapsed_t >= 0.2) this.re_key = false;
-        }
-        if (this.mi_key) {
-            let mi_elapsed_t = t - this.mi_start_t;
-            if (mi_elapsed_t >= 0.2) this.mi_key = false;
-        }
-        if (this.fa_key) {
-            let fa_elapsed_t = t - this.fa_start_t;
-            if (fa_elapsed_t >= 0.2) this.fa_key = false;
-        }
-        if (this.so_key) {
-            let so_elapsed_t = t - this.so_start_t;
-            if (so_elapsed_t >= 0.2) this.so_key = false;
-        }
-        if (this.la_key) {
-            let la_elapsed_t = t - this.la_start_t;
-            if (la_elapsed_t >= 0.2) this.la_key = false;
-        }
-        if (this.ti_key) {
-            let ti_elapsed_t = t - this.ti_start_t;
-            if (ti_elapsed_t >= 0.2) this.ti_key = false;
-        }
-
         let model_trans_key_1 = Mat4.translation(-9, this.do_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.do_key? pressed_height : unpressed_height, 3));
         let model_trans_key_2 = Mat4.translation(-6, this.re_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.re_key? pressed_height : unpressed_height, 3));
         let model_trans_key_3 = Mat4.translation(-3, this.mi_key? pressed_height : unpressed_height, 1).times(Mat4.scale(1, this.mi_key? pressed_height : unpressed_height, 3));
@@ -393,103 +450,167 @@ export class Fur_Graphics extends Scene {
         this.shapes.cube.draw(context, program_state, model_trans_key_7, shadow_pass? this.keys : this.pure);
 
         // Drawing Shapes
+        if (this.animate_do_up) {
+            if (this.do_shift >= 0.5) {
+                this.animate_do_up = false;
+                this.animate_do_up_done = true;
+                this.do_shift = 0.5;
+                this.do = false;
+            } else {
+                this.do_shift += 0.05;
+            }
+        }
+        if (this.animate_do_down) {
+            if (this.do_shift <= -0.5) {
+                this.animate_do_down = false;
+                this.animate_do_down_done = true;
+                this.do_shift = -0.5;
+                this.do = false;
+            } else {
+                this.do_shift -= 0.05;
+            }
+        }
         if (this.do) {
             this.do_t = this.do_t + dt;
         }
-        let model_trans_shape_1 = Mat4.translation(-9, 5, -7)
-                                    .times(Mat4.rotation(this.sin_modifier(0.5, 2, this.do_t), 1, 0, 0));
+        let model_trans_shape_1 = Mat4.translation(-9, 5, -7).times(Mat4.rotation(this.do_shift, 1, 0, 0));
         let shape_1_color = color(this.sin_modifier(0.3, 5, this.do_t, 2.5, 0.5), 
                                     this.cos_modifier(0.4, 2, this.do_t, 1, 0.5), 0.7, 1);
-        if (!this.do) {
-            model_trans_shape_1 = this.do_transform;
-            shape_1_color = this.do_color;
-        } else {
-            this.do_transform = model_trans_shape_1;
-            this.do_color = shape_1_color;
-        }
 
+
+        if (this.animate_re_up) {
+            if (this.re_shift >= 8) {
+                this.animate_re_up = false;
+                this.animate_re_up_done = true;
+                this.re_shift = 8;
+                this.re = false;
+            } else {
+                this.re_shift += 0.1;
+            }
+        }
+        if (this.animate_re_down) {
+            if (this.re_shift <= 4) {
+                this.animate_re_down = false;
+                this.animate_re_down_done = true;
+                this.re_shift = 4;
+                this.re = false;
+            } else {
+                this.re_shift -= 0.1;
+            }
+        }
         if (this.re) {
             this.re_t = this.re_t + dt;
         }
-        let model_trans_shape_2 = Mat4.translation(-6, this.cos_modifier(2, 2, this.re_t, 0, 6), -7)
+        let model_trans_shape_2 = Mat4.translation(-6, this.re_shift, -7)
                                                     .times(Mat4.rotation(this.sin_modifier(-3, 2, this.re_t), 1, this.cos_modifier(2, 1, this.re_t), 0));
         let shape_2_color = color(0.7, this.cos_modifier(0.2, 2, this.re_t, 1, 0.5), this.cos_modifier(0.4, 3, this.re_t, 1, 0.5), 1);
-        if (!this.re) {
-            model_trans_shape_1 = this.re_transform;
-            shape_1_color = this.re_color;
-        } else {
-            this.re_transform = model_trans_shape_2;
-            this.re_color = shape_2_color;
-        }
 
-        let model_trans_shape_3 = Mat4.translation(-3, 6, -7);        
-        if (this.animate_mi) {
-            const animate_mi_period = 1;
-            let animate_mi_elapsed_t = t - this.animate_mi_start_t;
-            let translation = this.sin_modifier(5, animate_mi_period, animate_mi_elapsed_t, -Math.PI/2, 5)/2;
-            let rotation = this.sin_modifier(2*Math.PI, 0.5, animate_mi_elapsed_t, -Math.PI/2, 2*Math.PI)/2;
-            if (animate_mi_elapsed_t >= animate_mi_period) {
-                this.animate_mi = false;
+        if (this.animate_mi_up) {
+            if (this.mi_shift >= -2) {
+                this.animate_mi_up = false;
+                this.animate_mi_up_done = true;
+                this.mi_shift = -2;
             } else {
-                model_trans_shape_3 = model_trans_shape_3
-                    .times(Mat4.translation(0, 0, translation))
-                    .times(Mat4.rotation(rotation, 1, 0, 0));
+                this.mi_shift += 0.1;
+                this.mi_rot += 0.5;
             }
         }
-
-        let model_trans_shape_4 = Mat4.translation(0, 5, -7);
-        if (this.animate_fa) {
-            const animate_fa_period = 1;
-            let animate_fa_elapsed_t = t - this.animate_fa_start_t;
-            let rotate_fa = 1-this.sin_modifier(1, animate_fa_period, animate_fa_elapsed_t, -Math.PI/2, 1)/2;
-            if (animate_fa_elapsed_t >= animate_fa_period) {
-                this.animate_fa = false;
+        if (this.animate_mi_down) {
+            if (this.mi_shift <= -7) {
+                this.animate_mi_down = false;
+                this.animate_mi_down_done = true;
+                this.mi_shift = -7;
             } else {
-                model_trans_shape_4 = model_trans_shape_4.times(Mat4.scale(rotate_fa, rotate_fa, 0, 0));
+                this.mi_shift -= 0.1;
+                this.mi_rot -= 0.5;
             }
         }
+        let model_trans_shape_3 = Mat4.translation(-3, 6, this.mi_shift).times(Mat4.rotation(this.mi_rot, 1, 0, 0))       
 
-        let model_trans_shape_5 = Mat4.translation(3, 6, -7);
-        const animate_so_period = 0.5;
-        if (this.animate_so) {
-            let animate_so_elapsed_t = t - this.animate_so_start_t;
-            let translation = this.sin_modifier(3, animate_so_period, animate_so_elapsed_t, -Math.PI/2, 3)/2;
-            if (animate_so_elapsed_t >= 2*animate_so_period) {
-                this.animate_so = false;
+        if (this.animate_fa_up) {
+            if (this.fa_shift <= 0) {
+                this.animate_fa_up = false;
+                this.animate_fa_up_done = true;
+                this.fa_shift = 0;
             } else {
-                model_trans_shape_5 = model_trans_shape_5
-                    .times(Mat4.translation(0, -translation, 0));
+                this.fa_shift -= 0.05;
             }
         }
-
-        let model_trans_shape_6 = Mat4.translation(6, 5, -7).times(Mat4.rotation(5,0,5,0));
-        const animate_la_period = 1;
-        if (this.animate_la) {
-            let animate_la_elapsed_t = t - this.animate_la_start_t;
-            let shift = this.sin_modifier(5, animate_la_period, animate_la_elapsed_t, -Math.PI/2, 5)/2;
-            if (animate_la_elapsed_t >= animate_la_period) {
-                this.animate_la = false;
+        if (this.animate_fa_down) {
+            if (this.fa_shift >= 1) {
+                this.animate_fa_down = false;
+                this.animate_fa_down_done = true;
+                this.fa_shift = 1;
             } else {
-                model_trans_shape_6 = model_trans_shape_6.times(Mat4.translation(0, shift, 0));
+                this.fa_shift += 0.05;
             }
         }
+        let model_trans_shape_4 = Mat4.translation(0, 5, -7).times(Mat4.scale(this.fa_shift, this.fa_shift, 1, 0));
 
-        let model_trans_shape_7 = Mat4.translation(9, 7, -7);
-        if (this.animate_ti) {
-            const animate_ti_period = 1;
-            let animate_ti_elapsed_t = t - this.animate_ti_start_t;
-            let rotate_ti = this.sin_modifier(5, animate_ti_period, animate_ti_elapsed_t, -Math.PI/2, 5)/2;
-            if (animate_ti_elapsed_t >= animate_ti_period) {
-                this.animate_ti = false;
+        if (this.animate_so_up) {
+            if (this.so_shift <= -3) {
+                this.animate_so_up = false;
+                this.animate_so_up_done = true;
+                this.so_shift = -3;
             } else {
-                model_trans_shape_7 = model_trans_shape_7.times(Mat4.rotation(rotate_ti, 0, rotate_ti, 0));
+                this.so_shift -= 0.1;
             }
         }
+        if (this.animate_so_down) {
+            if (this.so_shift >= 0) {
+                this.animate_so_down = false;
+                this.animate_so_down_done = true;
+                this.so_shift = 0;
+            } else {
+                this.so_shift += 0.1;
+            }
+        }
+        let model_trans_shape_5 = Mat4.translation(3, 6, -7).times(Mat4.translation(0, this.so_shift, 0));
 
-        this.shapes.shark.draw(context, program_state, this.do_transform, 
-                                this.keys.override({color: this.do_color}));
-        this.shapes.torus.draw(context, program_state, this.re_transform, 
-                                this.keys.override({color: this.re_color}));
+        if (this.animate_la_up) {
+            if (this.la_shift >= 7.5) {
+                this.animate_la_up = false;
+                this.animate_la_up_done = true;
+                this.la_shift = 7.5;
+            } else {
+                this.la_shift += 0.1;
+            }
+        }
+        if (this.animate_la_down) {
+            if (this.la_shift <= 5) {
+                this.animate_la_down = false;
+                this.animate_la_down_done = true;
+                this.la_shift = 5;
+            } else {
+                this.la_shift -= 0.1;
+            }
+        }
+        let model_trans_shape_6 = Mat4.translation(6, this.la_shift, -7).times(Mat4.rotation(5,0,5,0));
+
+        if (this.animate_ti_up) {
+            if (this.ti_shift >= 5) {
+                this.animate_ti_up = false;
+                this.animate_ti_up_done = true;
+                this.ti_shift = 5;
+            } else {
+                this.ti_shift += 0.1;
+            }
+        }
+        if (this.animate_ti_down) {
+            if (this.ti_shift <= 0) {
+                this.animate_ti_down = false;
+                this.animate_ti_down_done = true;
+                this.ti_shift = 0;
+            } else {
+                this.ti_shift -= 0.1;
+            }
+        }
+        let model_trans_shape_7 = Mat4.translation(9, 7, -7).times(Mat4.rotation(this.ti_shift, 0, 0.01+this.ti_shift, 0));
+
+        this.shapes.shark.draw(context, program_state, model_trans_shape_1, 
+                                this.keys.override({color: shape_1_color}));
+        this.shapes.torus.draw(context, program_state, model_trans_shape_2, 
+                                this.keys.override({color: shape_2_color}));
         this.shapes.planet.draw(context, program_state, model_trans_shape_3, this.planet);
         this.shapes.among_us.draw(context, program_state, model_trans_shape_4, this.among_us);
         this.shapes.sphere.draw(context, program_state, model_trans_shape_5, this.sphere); 
