@@ -85,6 +85,9 @@ export class Fur_Graphics extends Scene {
         this.floor = 1; 
         this.wall = 1;
 
+        // light movement
+        this.light_movement = true;
+
         // Load the model file:
         this.shapes = {
             "teapot": new Shape_From_File("assets/teapot.obj"),
@@ -98,6 +101,10 @@ export class Fur_Graphics extends Scene {
             "arrow": new Shape_From_File("assets/arrow.obj"),
             "rubik_cube": new Shape_From_File("assets/rubik_cube.obj"),
             "shark": new Shape_From_File("assets/shark.obj"),
+            "light": new Shape_From_File("assets/lamp2.obj"),
+            "puppy": new Shape_From_File("assets/puppy.obj"),
+            "plant": new Shape_From_File("assets/plant.obj"),
+            "plant2": new Shape_From_File("assets/plant2.obj"),
         };
 
         this.shapes.cube.arrays.texture_coord = Vector.cast(
@@ -121,6 +128,11 @@ export class Fur_Graphics extends Scene {
                 color: hex_color("#000000"),
                 ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/lines.jpeg", "NEAREST"),
+            }),
+            leaf_wall: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/leaf2.jpeg", "NEAREST"),
             }),
             triangles_wall: new Material(new Textured_Phong(), {
                 color: hex_color("#000000"),
@@ -215,12 +227,20 @@ export class Fur_Graphics extends Scene {
                 color: hex_color("#000000"),
                 ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
             }),
+            plant: new Material(new Color_Phong_Shader(), {
+                color: hex_color("#00CC00"),
+                ambient: .3, diffusivity: 0.6, specularity: 0.4, smoothness: 64,
+            }),
             bumps: new Material(new defs.Fake_Bump_Map(1), {
                 color: color(.5, .5, .5, 1),
                 ambient: 0.3, diffusivity: 0.5, specularity: .5, texture: new Texture("assets/stars.png")
             }),
-            light_src: new Material(new Phong_Shader(), { // for light source
+            light_src: new Material(new Phong_Shader(), { 
                 color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specularity: 0
+            }),
+            lighting: new Material(new Shadow_Textured_Phong_Shader(1), { // for light source
+                color: color(1, 1, 1, 1),
+                ambient: 0.8, diffusivity: 0.8, specularity: 0.6, smoothness: 64,
             }),
             depth_tex: new Material(new Depth_Texture_Shader_2D(), { // For depth texture display
                 color: color(0, 0, .0, 1),
@@ -233,13 +253,14 @@ export class Fur_Graphics extends Scene {
     }
 
     make_control_panel() {
-        this.key_triggered_button("Texture", ["t"], () => {this.texture = !this.texture});
+        // this.key_triggered_button("Texture", ["t"], () => {this.texture = !this.texture});
         this.key_triggered_button("Change Floor", ["o"], () => {
             this.floor === 3 ? this.floor = 1 : this.floor += 1;
         });
         this.key_triggered_button("Change Wall", ["l"], () => {
-            this.wall === 2 ? this.wall = 1 : this.wall += 1;
+            this.wall === 3 ? this.wall = 1 : this.wall += 1;
         });
+        this.key_triggered_button("Light Movement", ["g"], () => this.light_movement ^= 1);
         
         this.new_line();
         this.key_triggered_button("Do", ["z"], () => {
@@ -448,27 +469,39 @@ export class Fur_Graphics extends Scene {
         program_state.draw_shadow = draw_shadow;
 
         if (draw_light_source && shadow_pass) {
-            this.shapes.sphere.draw(context, program_state,
-                Mat4.translation(light_position[0], light_position[1], light_position[2]).times(Mat4.scale(.5,.5,.5)),
-                this.materials.light_src.override({color: light_color}));
+            this.shapes.light.draw(context, program_state,
+                Mat4.translation(light_position[0], light_position[1], light_position[2]).times(Mat4.translation(0,4.5,0)).times(Mat4.scale(1.5,1.5,1.5)),
+                this.materials.lighting.override({color: light_color}));
         }
 
         // Drawing Room
         let model_trans_room_floor = Mat4.translation(0, - 4 - 0.4, 0).times(Mat4.scale(22, 0.1, 28));
-        let model_trans_room_back_wall = Mat4.translation(0,  3 + 0.3, -28).times(Mat4.scale(22, 8, 0.1));
-        let model_trans_room_front_wall = Mat4.translation(0,  3 + 0.3, 28).times(Mat4.scale(22, 8, 0.1));
-        let model_trans_room_left_wall = Mat4.translation(-21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
-        let model_trans_room_right_wall = Mat4.translation(21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
+        let model_trans_room_ceiling = Mat4.translation(0, 15 + 0.1, 0).times(Mat4.scale(22, 0.1, 28));
+        let model_trans_room_back_wall = Mat4.translation(0,  5 + 0.5, -28).times(Mat4.scale(22, 10, 0.1));
+        let model_trans_room_front_wall = Mat4.translation(0,  5 + 0.5, 28).times(Mat4.scale(22, 10, 0.1));
+        let model_trans_room_left_wall = Mat4.translation(-21.9, 5 + 0.5, 0).times(Mat4.scale(0.1, 10, 28));
+        let model_trans_room_right_wall = Mat4.translation(21.9, 5 + 0.5, 0).times(Mat4.scale(0.1, 10, 28));
 
         this.floor === 1 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.wooden_floor) : 
         this.floor === 2 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.carpet_floor)
                          : this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.rocky_floor);
         
-        let wall_material = (this.wall === 1 ? this.materials.cloud_wall : this.materials.triangles_wall);
+        let wall_material = (
+            this.wall === 1 ? this.materials.cloud_wall : 
+            this.wall === 2 ? this.materials.triangles_wall
+                            : this.materials.leaf_wall
+        );
         this.shapes.cube2.draw(context, program_state, model_trans_room_back_wall, wall_material);
         this.shapes.cube.draw(context, program_state, model_trans_room_front_wall, wall_material);
         this.shapes.cube.draw(context, program_state, model_trans_room_left_wall, wall_material);
         this.shapes.cube.draw(context, program_state, model_trans_room_right_wall, wall_material);
+        this.shapes.cube.draw(context, program_state, model_trans_room_ceiling, wall_material);
+
+        // Drawing Decor
+        let model_trans_room_plant2 = Mat4.translation(-18, -3, -16);
+        let model_trans_room_plant = Mat4.translation(21, 5, -16).times(Mat4.rotation(-30,0,0,1));
+        this.shapes.plant2.draw(context, program_state, model_trans_room_plant2, this.materials.plant);
+        this.shapes.plant.draw(context, program_state, model_trans_room_plant, this.materials.plant);
 
         // Drawing Table
         let model_trans_keys_table = Mat4.translation(0, -0.10, 0).times(Mat4.scale(10, 0.1, 4));
@@ -697,14 +730,10 @@ export class Fur_Graphics extends Scene {
         }
 
         // The position of the light
-        this.light_position = Mat4.rotation(t / 1500, 0, 1, 0).times(vec4(3, 6, 0, 1));
-        // The color of the light
-        this.light_color = color(
-            0.667 + Math.sin(t/500) / 3,
-            0.667 + Math.sin(t/1500) / 3,
-            0.667 + Math.sin(t/3500) / 3,
-            1
-        );
+        this.light_position = this.light_movement 
+                ? Mat4.rotation(t / 1500, 0, 1, 0).times(vec4(3, 6, 0, 1))
+                : Mat4.rotation(Math.PI*3/2, 0, 1, 0).times(vec4(3, 6, 0, 1));
+        this.light_color = color(0.9, 0.9, 0.9, 1);
 
         // This is a rough target of the light.
         // Although the light is point light, we need a target to set the POV of the light
@@ -741,12 +770,6 @@ export class Fur_Graphics extends Scene {
 
 
     }
-
-    // show_explanation(document_element) {
-    //     document_element.innerHTML += "<p>This demo loads an external 3D model file of a teapot.  It uses a condensed version of the \"webgl-obj-loader.js\" "
-    //         + "open source library, though this version is not guaranteed to be complete and may not handle some .OBJ files.  It is contained in the class \"Shape_From_File\". "
-    //         + "</p><p>One of these teapots is lit with bump mapping.  Can you tell which one?</p>";
-    // }
 }
 
 
