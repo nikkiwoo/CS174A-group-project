@@ -6,10 +6,26 @@ Our project is to have an animated piano-like interface where users can press ke
 
 ### Code Location
 
-Most of the code are located in `./examples/shadow-demo.js`. You can copy that file into the `examples` folder of your repos (like assignments or team project), it should be compatible and you can import it as your main scene.
+The main inplementation of the project is located in `./fur_graphics.js`. 
+
+### User Interaction
+
+We also included a set of user interactions through key press. Users can either press on one of the piano keys for the background objecto to animate, or one of the setting keys to change the environment of the room. There are 3 different floor options and 3 wall options. 
+
+### Key Press
+The project simulate keyboard key press as actual piano keys. When a user press down on the key, the corresponding piano key gets pressed, and animation starts. When a user release the key, the piano key is realsed, and animation stops. 
+
+
+### Full List of Features
+- translations, rotations, scaling
+- color change
+- defined animations
+- importing object files
+- implemented bump texture*
+- shadow/lighting*
 
 ### References
 
-https://webglfundamentals.org/webgl/lessons/webgl-shadows.html
+https://github.com/Robert-Lu/tiny-graphics-shadow_demo
 
-https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+https://www.turbosquid.com
