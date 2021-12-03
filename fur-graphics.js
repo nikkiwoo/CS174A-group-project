@@ -82,7 +82,7 @@ export class Fur_Graphics extends Scene {
         this.texture = true;
 
         // room decor states
-        this.floor = 1; 
+        this.floor = 1;
         this.wall = 1;
 
         // Load the model file:
@@ -233,14 +233,13 @@ export class Fur_Graphics extends Scene {
     }
 
     make_control_panel() {
-        this.key_triggered_button("Texture", ["t"], () => {this.texture = !this.texture});
         this.key_triggered_button("Change Floor", ["o"], () => {
             this.floor === 3 ? this.floor = 1 : this.floor += 1;
         });
         this.key_triggered_button("Change Wall", ["l"], () => {
             this.wall === 2 ? this.wall = 1 : this.wall += 1;
         });
-        
+
         this.new_line();
         this.key_triggered_button("Do", ["z"], () => {
             this.do_key = true;
@@ -291,7 +290,7 @@ export class Fur_Graphics extends Scene {
                 this.animate_mi_down = true;
                 this.animate_mi_up_done = false;
                 this.animate_mi_up = false;
-                
+
             }
         });
 
@@ -340,7 +339,7 @@ export class Fur_Graphics extends Scene {
                 this.animate_la_down = true;
                 this.animate_la_up_done = false;
                 this.animate_la_up = false;
-                
+
             }
         });
 
@@ -357,7 +356,7 @@ export class Fur_Graphics extends Scene {
                 this.animate_ti_down = true;
                 this.animate_ti_up_done = false;
                 this.animate_ti_up = false;
-                
+
             }
         });
     }
@@ -460,10 +459,10 @@ export class Fur_Graphics extends Scene {
         let model_trans_room_left_wall = Mat4.translation(-21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
         let model_trans_room_right_wall = Mat4.translation(21.9, 3 + 0.3, 0).times(Mat4.scale(0.1, 8, 28));
 
-        this.floor === 1 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.wooden_floor) : 
+        this.floor === 1 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.wooden_floor) :
         this.floor === 2 ? this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.carpet_floor)
                          : this.shapes.cube2.draw(context, program_state, model_trans_room_floor, this.materials.rocky_floor);
-        
+
         let wall_material = (this.wall === 1 ? this.materials.cloud_wall : this.materials.triangles_wall);
         this.shapes.cube2.draw(context, program_state, model_trans_room_back_wall, wall_material);
         this.shapes.cube.draw(context, program_state, model_trans_room_front_wall, wall_material);
@@ -527,7 +526,7 @@ export class Fur_Graphics extends Scene {
             this.do_t = this.do_t + dt;
         }
         let model_trans_shape_1 = Mat4.translation(-9, 5, -7).times(Mat4.rotation(this.do_shift, 1, 0, 0));
-        let shape_1_color = color(this.sin_modifier(0.3, 5, this.do_t, 2.5, 0.5), 
+        let shape_1_color = color(this.sin_modifier(0.3, 5, this.do_t, 2.5, 0.5),
                                     this.cos_modifier(0.4, 2, this.do_t, 1, 0.5), 0.7, 1);
 
 
@@ -578,7 +577,7 @@ export class Fur_Graphics extends Scene {
                 this.mi_rot -= 0.5;
             }
         }
-        let model_trans_shape_3 = Mat4.translation(-3, 6, this.mi_shift).times(Mat4.rotation(this.mi_rot, 1, 0, 0))       
+        let model_trans_shape_3 = Mat4.translation(-3, 6, this.mi_shift).times(Mat4.rotation(this.mi_rot, 1, 0, 0))
 
         if (this.animate_fa_up) {
             if (this.fa_shift <= 0) {
